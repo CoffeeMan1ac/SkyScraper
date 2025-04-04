@@ -1,0 +1,15 @@
+#explanation {
+	-fx-background-color: #000000;
+	-fx-text-fill:"white";
+	
+}
+/* 
+#mainPane {
+    -fx-background-color: #A7A8AA;
+}
+ 
+*/
+
+.root {
+    -fx-background-color: #A7A8AA;
+}

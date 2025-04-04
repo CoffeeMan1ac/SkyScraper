@@ -1,0 +1,7 @@
+# Ignore Eclipse and build files
+.classpath
+.project
+.settings/
+bin/
+*.class
+build.fxbuild
