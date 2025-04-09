@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import javafx.scene.control.ComboBox;
 import javafx.collections.transformation.FilteredList;
@@ -13,6 +14,7 @@ import java.util.regex.*;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 
+import javafx.util.Duration;
 
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import application.FlightSearchResult;
@@ -24,14 +26,20 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Controller {
-
+	
     private Stage stage;
     private Scene scene;
     private Parent root;
@@ -43,6 +51,25 @@ public class Controller {
 
     
     private static final Pattern FLIGHT_PATTERN = Pattern.compile("^[A-Z]{2}\\d+$");
+    
+    @FXML
+    private ComboBox<String> carrierComboBox;
+
+    @FXML
+    private ComboBox<String> originCityComboBox;
+
+    @FXML
+    private ComboBox<String> destinationCityComboBox;
+
+    @FXML
+    private RangeSlider rangeSlider;
+    @FXML
+    private RangeSlider rangeSlider2;
+
+    @FXML
+    private RadioButton option1;
+    @FXML
+    private RadioButton option2;
     
     @FXML
     ComboBox<String> flightSearchBox;
@@ -57,45 +84,90 @@ public class Controller {
     TextField flightNumberField;
     
     @FXML
+    private Pane mapContainer;
+    
+    @FXML
     ComboBox<String> cityComboBox;
 
+    @FXML
+    private AnchorPane mainPane;
+    
+    @FXML
+    public void handleCityCircleClick(MouseEvent event) throws IOException {
+        // Retrieve the city name from the clicked circle using userData
+        String cityName = (String) ((Node) event.getSource()).getUserData();
+        
+        // Simulate selecting the city in the ComboBox
+        cityComboBox.getEditor().setText(cityName);
+
+        // Trigger the transition to the GraphsScene
+        switchToGraphsBUTTON();
+    }
+    
+    @FXML
     public void initialize() {
         MemoryLoader.importCSVToMemory();
         importInfoLabel.setText("Successfully imported " + MemoryLoader.getAllFlights().size() + " flights!");
+
         Set<String> uniqueCities = MemoryLoader.getAllFlights().stream()
                 .map(f -> f.originCity)
                 .collect(Collectors.toSet());
 
+        Set<String> uniqueDestCities = MemoryLoader.getAllFlights().stream()
+                .map(f -> f.destCity)
+                .collect(Collectors.toSet());
+
+        Set<String> uniqueCarriers = MemoryLoader.getAllFlights().stream()
+                .map(f -> f.mktCarrier)
+                .collect(Collectors.toSet());
+        	
+     // Flight Search (carrier + flight number)
+        AutoCompletionBinding<FlightSearchResult> autoCompletion =
+            TextFields.bindAutoCompletion(flightSearchField, param -> {
+                String input = param.getUserText().toUpperCase();
+                if (!input.matches("^[A-Z]{2}\\d+$")) {
+                    return FXCollections.observableArrayList();
+                }
+                return MemoryLoader.getAllFlights().stream()
+                        .filter(f -> (f.mktCarrier + f.flightNum).equalsIgnoreCase(input))
+                        .map(f -> new FlightSearchResult(formatFlightSummary(f), f))
+                        .collect(Collectors.toList());
+            });
+
+        // When a suggestion is clicked, show flight details
+        autoCompletion.setOnAutoCompleted(event -> {
+            Flight selectedFlight = event.getCompletion().getFlight();
+            showFlightDetails(selectedFlight);
+        });
+        	
+        // Fill all dropdowns
         ObservableList<String> cityList = FXCollections.observableArrayList(uniqueCities);
         cityComboBox.setItems(cityList);
         cityComboBox.setEditable(true);
-
-        // ✅ ControlsFX AutoComplete
         TextFields.bindAutoCompletion(cityComboBox.getEditor(), cityList);
+
+        carrierComboBox.setItems(FXCollections.observableArrayList(uniqueCarriers));
+        originCityComboBox.setItems(FXCollections.observableArrayList(uniqueCities));
+        destinationCityComboBox.setItems(FXCollections.observableArrayList(uniqueDestCities));
+
+        rangeSlider.setLowValue(rangeSlider.getMin());     // 0
+        rangeSlider.setHighValue(rangeSlider.getMax());    // 1440
+
+        rangeSlider2.setLowValue(rangeSlider2.getMin());
+        rangeSlider2.setHighValue(rangeSlider2.getMax());
         
-     // Flight Search (carrier + flight number)
-        AutoCompletionBinding<FlightSearchResult> autoCompletion =
-        	    TextFields.bindAutoCompletion(flightSearchField, param -> {
-        	        String input = param.getUserText().toUpperCase();
-        	        if (!input.matches("^[A-Z]{2}\\d+$")) {
-        	            return FXCollections.observableArrayList();
-        	        }
-        	        return MemoryLoader.getAllFlights().stream()
-        	                .filter(f -> (f.mktCarrier + f.flightNum).equalsIgnoreCase(input))
-        	                .map(f -> new FlightSearchResult(formatFlightSummary(f), f))
-        	                .collect(Collectors.toList());
-        	    });
-
-        	// When user selects → show details
-        	autoCompletion.setOnAutoCompleted(event -> {
-        	    FlightSearchResult selected = event.getCompletion();
-        	    showFlightDetails(selected.getFlight());
-        	});
-
-        	//SQLPart.printAllUniqueOriginAndDestAirportCodes();
-
-
+        // Tooltip and auto-complete, optional for usability
+        for (Node node : mapContainer.getChildren()) {
+            if (node instanceof Circle) {
+                Circle circle = (Circle) node;
+                String cityName = (String) circle.getUserData();
+                Tooltip tooltip = new Tooltip(cityName);
+                tooltip.setShowDelay(Duration.ZERO);
+                Tooltip.install(circle, tooltip);
+            }
+        }
     }
+
 
     private void showFlightDetailsFromSummary(String summary) {
         try {
@@ -130,44 +202,83 @@ public class Controller {
         }
     }
 
+    @FXML
+    public void handleSearchFlights(ActionEvent event) throws IOException {
+        double depLow = rangeSlider.getLowValue();
+        double depHigh = rangeSlider.getHighValue();
+        double arrLow = rangeSlider2.getLowValue();
+        double arrHigh = rangeSlider2.getHighValue();
+
+        String selectedCarrier = carrierComboBox.getValue();
+        String selectedOrigin = originCityComboBox.getValue();
+        String selectedDest = destinationCityComboBox.getValue();
+
+        boolean showCancelled = option1.isSelected();
+        boolean showDiverted = option2.isSelected();
+
+        ObservableList<Flight> filteredFlights = FXCollections.observableArrayList(
+            MemoryLoader.getAllFlights().stream()
+                .filter(f -> {
+                	int depMinutes = parseDoubleTime(f.crsDepTime);
+                	int arrMinutes = parseDoubleTime(f.crsArrTime);
+
+                    boolean matchDep = depMinutes >= depLow && depMinutes <= depHigh;
+                    boolean matchArr = arrMinutes >= arrLow && arrMinutes <= arrHigh;
+
+                    boolean matchCarrier = (selectedCarrier == null || selectedCarrier.isEmpty()) || f.mktCarrier.equals(selectedCarrier);
+                    boolean matchOrigin = (selectedOrigin == null || selectedOrigin.isEmpty()) || f.originCity.equals(selectedOrigin);
+                    boolean matchDest = (selectedDest == null || selectedDest.isEmpty()) || f.destCity.equals(selectedDest);
+
+                    boolean matchCancelled = !showCancelled || f.cancelled.equals("1.00");
+                    boolean matchDiverted = !showDiverted || f.diverted.equals("1.00");
+
+                    return matchDep && matchArr && matchCarrier && matchOrigin && matchDest && matchCancelled && matchDiverted;
+                })
+                .collect(Collectors.toList())
+        );
+        
+        
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightResults.fxml"));
+        Parent resultsRoot = loader.load();
+
+        FlightResultsController resultsController = loader.getController();
+        resultsController.setFlights(filteredFlights);
+
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+        scene = new Scene(resultsRoot);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
+    }
     
-//    public void searchFlight(ActionEvent event) {
-//        String flightNum = flightNumberField.getText();
-//        if (flightNum == null || flightNum.isEmpty()) {
-//            System.out.println("Please enter a flight number.");
-//            return;
-//        }
-//
-//        Flight matchedFlight = SQLPart.getAllFlights().stream()
-//                .filter(f -> f.flightNum.equals(flightNum))
-//                .findFirst()
-//                .orElse(null);
-//
-//        if (matchedFlight == null) {
-//            System.out.println("Flight not found.");
-//            return;
-//        }
-//
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));
-//            Parent popupRoot = loader.load();
-//
-//            FlightDetailsController controller = loader.getController();
-//            controller.setFlight(matchedFlight);  // 🟢 This is where data is passed
-//
-//            Stage popupStage = new Stage();
-//            controller.setStage(popupStage);
-//            popupStage.setTitle("Flight Details");
-//            popupStage.setScene(new Scene(popupRoot));
-//            popupStage.show();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private int parseDoubleTime(String timeString) {
+        if (timeString == null || timeString.isEmpty()) return -1;
+        try {
+            double time = Double.parseDouble(timeString); // e.g., 930.0
+            int hours = (int) time / 100;
+            int minutes = (int) time % 100;
+            return hours * 60 + minutes;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
 
+    // Utility: Converts "HHMM" string into minutes since midnight
+    private int parseTime(String time) {
+        if (time == null || time.isEmpty()) return -1;
+        try {
+            int t = Integer.parseInt(time);
+            int hours = t / 100;
+            int minutes = t % 100;
+            return hours * 60 + minutes;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
+    
     
     public void switchToMain(ActionEvent event) throws IOException {
         root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
@@ -194,6 +305,26 @@ public class Controller {
         stage.setScene(scene);
         stage.show();
     }
+    
+    public void switchToGraphsBUTTON() throws IOException {
+        String selectedCity = cityComboBox.getEditor().getText();
+        if (selectedCity == null || selectedCity.isEmpty()) return;
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/GraphsScene.fxml"));
+        root = loader.load();
+
+        ControllerGraphs controllerGraphs = loader.getController();
+        controllerGraphs.displayInput(selectedCity);
+
+        // Correct casting here:
+        stage = (Stage) cityComboBox.getScene().getWindow();
+        scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    
     private void showFlightDetails(Flight flight) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));

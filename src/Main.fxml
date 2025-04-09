@@ -3,13 +3,17 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
+<?import org.controlsfx.control.RangeSlider?>
 
 <AnchorPane id="mainPane" fx:id="mainPane" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
    <children>
@@ -27,13 +31,458 @@
             </Label>
          </children>
       </VBox>
-      <Button fx:id="graphsButton" layoutX="35.0" layoutY="255.0" mnemonicParsing="false" onAction="#switchToGraphs" text="Generate Graph">
+      <Button fx:id="graphsButton" layoutX="35.0" layoutY="-255.0" mnemonicParsing="false" onAction="#switchToGraphs" text="Generate Graph">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <ComboBox fx:id="cityComboBox" layoutX="35.0" layoutY="210.0" prefWidth="300.0" />
-      <Label layoutX="42.0" layoutY="185.0" text="Select Origin City:" textFill="WHITE" />
+      <ComboBox fx:id="cityComboBox" layoutX="35.0" layoutY="-210.0" prefWidth="300.0" />
+      <Label layoutX="42.0" layoutY="-185.0" text="Select Origin City:" textFill="WHITE" />
+
+
+<!-- Departure Time Range -->
+<AnchorPane layoutX="35.0" layoutY="200.0" prefWidth="300.0">
+    <children>
+        <VBox alignment="TOP_LEFT" spacing="10.0">
+            <Label text="Select time range for departure:" textFill="WHITE" />
+            <RangeSlider fx:id="rangeSlider" blockIncrement="30" lowValue="0" majorTickUnit="240" max="1440" min="0" minorTickCount="3" prefWidth="250.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+
+ 
+            <Label fx:id="lowValueLabel" text="Start: 08:00" textFill="WHITE" />
+            <Label fx:id="highValueLabel" text="End: 17:00" textFill="WHITE" />
+            
+        </VBox>
+    </children>
+</AnchorPane>
+
+<!-- Arrival Time Range -->
+<AnchorPane layoutX="335.0" layoutY="200.0" prefWidth="300.0">
+    <children>
+        <VBox alignment="TOP_LEFT" spacing="10.0">
+            <Label text="Select time range for arrival:" textFill="WHITE" />
+            <RangeSlider fx:id="rangeSlider2" blockIncrement="30" lowValue="0" majorTickUnit="240" max="1440" min="0" minorTickCount="3" prefWidth="250.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+
+<!--             
+            <Label fx:id="lowValueLabel2" text="Start: 08:00" textFill="WHITE" />
+            <Label fx:id="highValueLabel2" text="End: 17:00" textFill="WHITE" />
+-->                        
+        </VBox>
+    </children>
+</AnchorPane>
+
+	  
+	  <AnchorPane layoutX="705.0" layoutY="120.0" prefWidth="300.0">
+   <children>
+      <VBox alignment="TOP_LEFT" spacing="10.0">
+         <Label text="Select a preference:" textFill="WHITE" />
+         
+         <!-- RadioButtons -->
+         <RadioButton fx:id="option1" style="-fx-text-fill: white;" text="Show cancelled flights" />
+         <RadioButton fx:id="option2" style="-fx-text-fill: white;" text="Show diverted flights" />
+      </VBox>
+   </children>
+</AnchorPane>
+	  
+	  <Label layoutX="447.0" layoutY="266.0" text="Search by Flight:" textFill="WHITE" />
+	  <TextField fx:id="flightSearchField" layoutX="447.0" layoutY="291.0" prefWidth="350.0" />
+	  <AnchorPane layoutX="35.0" layoutY="135.0" prefWidth="600.0">
+    <children>
+        <!-- ComboBox 1 with label above it -->
+        <VBox alignment="CENTER" spacing="5.0">
+            <Label text="Select a carrier:" textFill="WHITE" />
+            <ComboBox fx:id="carrierComboBox" prefWidth="200.0" />
+        </VBox>
+
+        <!-- ComboBox 2 with label above it -->
+        <VBox alignment="CENTER" layoutX="220" layoutY="0" spacing="5.0">
+            <Label text="Select origin city:" textFill="WHITE" />
+            <ComboBox fx:id="originCityComboBox" prefWidth="200.0" />
+        </VBox>
+
+        <!-- ComboBox 3 with label above it -->
+        <VBox alignment="CENTER" layoutX="440" layoutY="0" spacing="5.0">
+            <Label text="Select destination city:" textFill="WHITE" />
+            <ComboBox fx:id="destinationCityComboBox" prefWidth="200.0" />
+        </VBox>
+    </children>
+</AnchorPane>
+	  
+	  
+	  <Pane fx:id="mapContainer" layoutX="219.0" layoutY="337.0" prefHeight="449.0" prefWidth="763.0">
+            <children>
+                <ImageView fx:id="mapImage" fitHeight="449.0" fitWidth="763.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@us_alaska_hawaii_samoa_virgin_puerto_mariana.png" />
+                    </image>
+                </ImageView>
+                <Circle fill="red" layoutX="702.0" layoutY="138.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="New York, NY" />
+                <Circle fill="red" layoutX="517.2" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Meridian, MS" />
+<Circle fill="red" layoutX="131.0" layoutY="200.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="San Jose, CA" />
+<Circle fill="red" layoutX="551.5" layoutY="166.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kalamazoo, MI" />
+<Circle fill="red" layoutX="501.9" layoutY="112.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bemidji, MN" />
+<Circle fill="red" layoutX="517.2" layoutY="192.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Champaign/Urbana, IL" />
+<Circle fill="red" layoutX="471.4" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Springfield, MO" />
+<Circle fill="red" layoutX="494.3" layoutY="124.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hibbing, MN" />
+<Circle fill="red" layoutX="674.0" layoutY="197.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Richmond, VA" />
+<Circle fill="red" layoutX="354.0" layoutY="167.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Scottsbluff, NE" />
+<Circle fill="red" layoutX="517.2" layoutY="192.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Champaign/Urbana, IL" />
+<Circle fill="red" layoutX="471.4" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Springfield, MO" />
+<Circle fill="red" layoutX="494.3" layoutY="124.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hibbing, MN" />
+<Circle fill="red" layoutX="361.0" layoutY="64.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Williston, ND" />
+<Circle fill="red" layoutX="248.0" layoutY="77.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Missoula, MT" />
+<Circle fill="red" layoutX="666.0" layoutY="174.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Washington, DC" />
+<Circle fill="red" layoutX="547.7" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Nashville, TN" />
+<Circle fill="red" layoutX="578.2" layoutY="208.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lewisburg, WV" />
+<Circle fill="red" layoutX="685.0" layoutY="157.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Philadelphia, PA" />
+<Circle fill="red" layoutX="311.0" layoutY="215.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Gunnison, CO" />
+<Circle fill="red" layoutX="328.0" layoutY="150.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Casper, WY" />
+<Circle fill="red" layoutX="593.5" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hilton Head, SC" />
+<Circle fill="red" layoutX="414.0" layoutY="185.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Grand Island, NE" />
+<Circle fill="red" layoutX="448.5" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Austin, TX" />
+<Circle fill="red" layoutX="327.0" layoutY="120.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sheridan, WY" />
+<Circle fill="red" layoutX="563.0" layoutY="192.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Columbus, OH" />
+<Circle fill="red" layoutX="280.0" layoutY="68.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Great Falls, MT" />
+<Circle fill="red" layoutX="486.7" layoutY="139.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="St. Cloud, MN" />
+<Circle fill="red" layoutX="655.0" layoutY="125.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Elmira/Corning, NY" />
+<Circle fill="red" layoutX="671.0" layoutY="387.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Miami, FL" />
+<Circle fill="red" layoutX="501.9" layoutY="276.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Mobile, AL" />
+<Circle fill="red" layoutX="547.7" layoutY="208.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cincinnati, OH" />
+<Circle fill="red" layoutX="440.9" layoutY="269.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dallas, TX" />
+<Circle fill="red" layoutX="662.0" layoutY="108.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Syracuse, NY" />
+<Circle fill="red" layoutX="305.0" layoutY="383.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kahului, HI" />
+<Circle fill="red" layoutX="494.3" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="New Orleans, LA" />
+<Circle fill="red" layoutX="547.7" layoutY="147.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Alpena, MI" />
+<Circle fill="red" layoutX="650.0" layoutY="348.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Orlando, FL" />
+<Circle fill="red" layoutX="509.6" layoutY="154.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Appleton, WI" />
+<Circle fill="red" layoutX="208.0" layoutY="237.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Las Vegas, NV" />
+<Circle fill="red" layoutX="517.2" layoutY="269.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Montgomery, AL" />
+<Circle fill="red" layoutX="578.2" layoutY="253.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fayetteville, NC" />
+<Circle fill="red" layoutX="540.1" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Louisville, KY" />
+<Circle fill="red" layoutX="646.0" layoutY="113.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Rochester, NY" />
+<Circle fill="red" layoutX="593.5" layoutY="299.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Savannah, GA" />
+<Circle fill="red" layoutX="612.6" layoutY="250.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Jacksonville/Camp Lejeune, NC" />
+<Circle fill="red" layoutX="517.2" layoutY="223.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Paducah, KY" />
+<Circle fill="red" layoutX="147.0" layoutY="356.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kotzebue, AK" />
+<Circle fill="red" layoutX="434.0" layoutY="179.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lincoln, NE" />
+<Circle fill="red" layoutX="343.0" layoutY="223.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pueblo, CO" />
+<Circle fill="red" layoutX="263.0" layoutY="135.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Idaho Falls, ID" />
+<Circle fill="red" layoutX="264.0" layoutY="365.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lihue, HI" />
+<Circle fill="red" layoutX="653.0" layoutY="335.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Daytona Beach, FL" />
+<Circle fill="red" layoutX="463.8" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Houston, TX" />
+<Circle fill="red" layoutX="555.3" layoutY="231.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Knoxville, TN" />
+<Circle fill="red" layoutX="374.0" layoutY="294.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lubbock, TX" />
+<Circle fill="red" layoutX="501.9" layoutY="276.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Gulfport/Biloxi, MS" />
+<Circle fill="red" layoutX="532.5" layoutY="139.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Marquette, MI" />
+<Circle fill="red" layoutX="524.8" layoutY="131.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Iron Mountain/Kingsfd, MI" />
+<Circle fill="red" layoutX="647.0" layoutY="372.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Punta Gorda, FL" />
+<Circle fill="red" layoutX="627.0" layoutY="160.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pittsburgh, PA" />
+<Circle fill="red" layoutX="676.0" layoutY="135.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Scranton/Wilkes-Barre, PA" />
+<Circle fill="red" layoutX="692.0" layoutY="123.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Newburgh/Poughkeepsie, NY" />
+<Circle fill="red" layoutX="313.0" layoutY="204.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Aspen, CO" />
+<Circle fill="red" layoutX="494.3" layoutY="208.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="St. Louis, MO" />
+<Circle fill="red" layoutX="509.6" layoutY="253.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Columbus, MS" />
+<Circle fill="red" layoutX="412.0" layoutY="68.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Devils Lake, ND" />
+<Circle fill="red" layoutX="341.0" layoutY="198.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Denver, CO" />
+<Circle fill="red" layoutX="540.1" layoutY="131.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sault Ste. Marie, MI" />
+<Circle fill="red" layoutX="477.0" layoutY="162.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Mason City, IA" />
+<Circle fill="red" layoutX="120.0" layoutY="136.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Arcata/Eureka, CA" />
+<Circle fill="red" layoutX="509.6" layoutY="185.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bloomington/Normal, IL" />
+<Circle fill="red" layoutX="456.2" layoutY="231.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Tulsa, OK" />
+<Circle fill="red" layoutX="162.0" layoutY="255.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Burbank, CA" />
+<Circle fill="red" layoutX="135.0" layoutY="194.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Oakland, CA" />
+<Circle fill="red" layoutX="422.0" layoutY="211.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Salina, KS" />
+<Circle fill="red" layoutX="494.3" layoutY="154.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Rochester, MN" />
+<Circle fill="red" layoutX="532.5" layoutY="200.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Indianapolis, IN" />
+<Circle fill="red" layoutX="653.0" layoutY="375.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fort Myers, FL" />
+<Circle fill="red" layoutX="633.0" layoutY="360.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="St. Petersburg, FL" />
+<Circle fill="red" layoutX="563.0" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Ashland, WV" />
+<Circle fill="red" layoutX="355.0" layoutY="303.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hobbs, NM" />
+<Circle fill="red" layoutX="175.0" layoutY="212.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bishop, CA" />
+<Circle fill="red" layoutX="307.0" layoutY="106.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Billings, MT" />
+<Circle fill="red" layoutX="217.0" layoutY="56.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Spokane, WA" />
+<Circle fill="red" layoutX="563.0" layoutY="185.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Akron, OH" />
+<Circle fill="red" layoutX="578.2" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Albany, GA" />
+<Circle fill="red" layoutX="251.0" layoutY="50.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kalispell, MT" />
+<Circle fill="red" layoutX="685.0" layoutY="82.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Plattsburgh, NY" />
+<Circle fill="red" layoutX="260.0" layoutY="167.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Ogden, UT" />
+<Circle fill="red" layoutX="494.3" layoutY="192.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Springfield, IL" />
+<Circle fill="red" layoutX="471.4" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fort Smith, AR" />
+<Circle fill="red" layoutX="139.0" layoutY="153.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Redding, CA" />
+<Circle fill="red" layoutX="330.0" layoutY="234.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Alamosa, CO" />
+<Circle fill="red" layoutX="463.8" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Victoria, TX" />
+<Circle fill="red" layoutX="509.6" layoutY="139.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Rhinelander, WI" />
+<Circle fill="red" layoutX="547.7" layoutY="162.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Flint, MI" />
+<Circle fill="red" layoutX="669.0" layoutY="120.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Binghamton, NY" />
+<Circle fill="red" layoutX="690.0" layoutY="177.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Salisbury, MD" />
+<Circle fill="red" layoutX="442.0" layoutY="178.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Omaha, NE" />
+<Circle fill="red" layoutX="501.9" layoutY="147.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Mosinee, WI" />
+<Circle fill="red" layoutX="152.0" layoutY="216.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fresno, CA" />
+<Circle fill="red" layoutX="298.0" layoutY="204.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Grand Junction, CO" />
+<Circle fill="red" layoutX="375.0" layoutY="269.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Amarillo, TX" />
+<Circle fill="red" layoutX="141.0" layoutY="253.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Santa Barbara, CA" />
+<Circle fill="red" layoutX="434.0" layoutY="139.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sioux Falls, SD" />
+<Circle fill="red" layoutX="285.0" layoutY="182.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Vernal, UT" />
+<Circle fill="red" layoutX="524.8" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Evansville, IN" />
+<Circle fill="red" layoutX="190.0" layoutY="50.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Wenatchee, WA" />
+<Circle fill="red" layoutX="508.0" layoutY="396.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Aguadilla, PR" />
+<Circle fill="red" layoutX="501.9" layoutY="223.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cape Girardeau, MO" />
+<Circle fill="red" layoutX="471.4" layoutY="269.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Shreveport, LA" />
+<Circle fill="red" layoutX="479.0" layoutY="246.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Little Rock, AR" />
+<Circle fill="red" layoutX="651.0" layoutY="147.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="State College, PA" />
+<Circle fill="red" layoutX="88.0" layoutY="417.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Adak Island, AK" />
+<Circle fill="red" layoutX="166.0" layoutY="48.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Seattle, WA" />
+<Circle fill="red" layoutX="540.1" layoutY="170.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lansing, MI" />
+<Circle fill="red" layoutX="641.0" layoutY="156.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Johnstown, PA" />
+<Circle fill="red" layoutX="424.0" layoutY="117.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Watertown, SD" />
+<Circle fill="red" layoutX="540.1" layoutY="162.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Grand Rapids, MI" />
+<Circle fill="red" layoutX="456.2" layoutY="246.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lawton/Fort Sill, OK" />
+<Circle fill="red" layoutX="181.0" layoutY="67.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Yakima, WA" />
+<Circle fill="red" layoutX="415.0" layoutY="89.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Jamestown, ND" />
+<Circle fill="red" layoutX="666.0" layoutY="154.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Harrisburg, PA" />
+<Circle fill="red" layoutX="428.0" layoutY="72.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Grand Forks, ND" />
+<Circle fill="red" layoutX="206.0" layoutY="168.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Elko, NV" />
+<Circle fill="red" layoutX="727.0" layoutY="55.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bangor, ME" />
+<Circle fill="red" layoutX="694.0" layoutY="140.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Newark, NJ" />
+<Circle fill="red" layoutX="661.0" layoutY="348.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Melbourne, FL" />
+<Circle fill="red" layoutX="425.0" layoutY="276.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Midland/Odessa, TX" />
+<Circle fill="red" layoutX="456.2" layoutY="276.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Killeen, TX" />
+<Circle fill="red" layoutX="501.9" layoutY="147.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Eau Claire, WI" />
+<Circle fill="red" layoutX="712.0" layoutY="106.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Worcester, MA" />
+<Circle fill="red" layoutX="578.2" layoutY="246.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Charlotte, NC" />
+<Circle fill="red" layoutX="676.0" layoutY="168.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Baltimore, MD" />
+<Circle fill="red" layoutX="570.6" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Charleston/Dunbar, WV" />
+<Circle fill="red" layoutX="673.0" layoutY="382.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fort Lauderdale, FL" />
+<Circle fill="red" layoutX="563.0" layoutY="231.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bristol/Johnson City/Kingsport, TN" />
+<Circle fill="red" layoutX="215.0" layoutY="407.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sitka, AK" />
+<Circle fill="red" layoutX="593.5" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Raleigh/Durham, NC" />
+<Circle fill="red" layoutX="173.0" layoutY="102.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bend/Redmond, OR" />
+<Circle fill="red" layoutX="501.9" layoutY="192.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Peoria, IL" />
+<Circle fill="red" layoutX="639.0" layoutY="366.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sarasota/Bradenton, FL" />
+<Circle fill="red" layoutX="195.0" layoutY="73.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pasco/Kennewick/Richland, WA" />
+<Circle fill="red" layoutX="524.8" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Birmingham, AL" />
+<Circle fill="red" layoutX="152.0" layoutY="406.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="King Salmon, AK" />
+<Circle fill="red" layoutX="262.0" layoutY="96.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Butte, MT" />
+<Circle fill="red" layoutX="578.2" layoutY="269.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Greer, SC" />
+<Circle fill="red" layoutX="256.0" layoutY="146.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pocatello, ID" />
+<Circle fill="red" layoutX="319.0" layoutY="258.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Santa Fe, NM" />
+<Circle fill="red" layoutX="128.0" layoutY="215.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Monterey, CA" />
+<Circle fill="red" layoutX="175.0" layoutY="264.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Ontario, CA" />
+<Circle fill="red" layoutX="312.0" layoutY="319.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="El Paso, TX" />
+<Circle fill="red" layoutX="299.0" layoutY="233.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Durango, CO" />
+<Circle fill="red" layoutX="641.0" layoutY="317.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Jacksonville, FL" />
+<Circle fill="red" layoutX="659.0" layoutY="165.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hagerstown, MD" />
+<Circle fill="red" layoutX="585.9" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Florence, SC" />
+<Circle fill="red" layoutX="160.0" layoutY="263.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Los Angeles, CA" />
+<Circle fill="red" layoutX="397.0" layoutY="127.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pierre, SD" />
+<Circle fill="red" layoutX="395.0" layoutY="236.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Liberal, KS" />
+<Circle fill="red" layoutX="532.5" layoutY="131.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pellston, MI" />
+<Circle fill="red" layoutX="572.0" layoutY="398.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="San Juan, PR" />
+<Circle fill="red" layoutX="303.0" layoutY="214.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Montrose/Delta, CO" />
+<Circle fill="red" layoutX="524.8" layoutY="246.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Huntsville, AL" />
+<Circle fill="red" layoutX="585.9" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Greensboro/High Point, NC" />
+<Circle fill="red" layoutX="540.1" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lexington, KY" />
+<Circle fill="red" layoutX="384.0" layoutY="69.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Minot, ND" />
+<Circle fill="red" layoutX="707.0" layoutY="133.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Islip, NY" />
+<Circle fill="red" layoutX="463.8" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="College Station/Bryan, TX" />
+<Circle fill="red" layoutX="517.2" layoutY="162.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Milwaukee, WI" />
+<Circle fill="red" layoutX="166.0" layoutY="406.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kodiak, AK" />
+<Circle fill="red" layoutX="689.0" layoutY="148.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Trenton, NJ" />
+<Circle fill="red" layoutX="456.2" layoutY="299.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Harlingen/San Benito, TX" />
+<Circle fill="red" layoutX="215.0" layoutY="72.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pullman, WA" />
+<Circle fill="red" layoutX="241.0" layoutY="281.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Phoenix, AZ" />
+<Circle fill="red" layoutX="710.0" layoutY="94.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Manchester, NH" />
+<Circle fill="red" layoutX="176.0" layoutY="370.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fairbanks, AK" />
+<Circle fill="red" layoutX="604.9" layoutY="253.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="New Bern/Morehead/Beaufort, NC" />
+<Circle fill="red" layoutX="140.0" layoutY="180.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sacramento, CA" />
+<Circle fill="red" layoutX="578.2" layoutY="246.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Concord, NC" />
+<Circle fill="red" layoutX="283.0" layoutY="373.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Honolulu, HI" />
+<Circle fill="red" layoutX="524.8" layoutY="276.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dothan, AL" />
+<Circle fill="red" layoutX="479.0" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lake Charles, LA" />
+<Circle fill="red" layoutX="494.3" layoutY="116.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="International Falls, MN" />
+<Circle fill="red" layoutX="721.0" layoutY="111.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Providence, RI" />
+<Circle fill="red" layoutX="258.0" layoutY="185.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Provo, UT" />
+<Circle fill="red" layoutX="367.0" layoutY="132.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Rapid City, SD" />
+<Circle fill="red" layoutX="471.4" layoutY="208.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fort Leonard Wood, MO" />
+<Circle fill="red" layoutX="337.0" layoutY="128.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Gillette, WY" />
+<Circle fill="red" layoutX="135.0" layoutY="123.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Medford, OR" />
+<Circle fill="red" layoutX="687.0" layoutY="200.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Norfolk, VA" />
+<Circle fill="red" layoutX="479.0" layoutY="177.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cedar Rapids/Iowa City, IA" />
+<Circle fill="red" layoutX="494.3" layoutY="154.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="La Crosse, WI" />
+<Circle fill="red" layoutX="448.5" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="San Antonio, TX" />
+<Circle fill="red" layoutX="456.2" layoutY="299.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Corpus Christi, TX" />
+<Circle fill="red" layoutX="524.8" layoutY="124.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hancock/Houghton, MI" />
+<Circle fill="red" layoutX="555.3" layoutY="299.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Valparaiso, FL" />
+<Circle fill="red" layoutX="341.0" layoutY="302.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Roswell, NM" />
+<Circle fill="red" layoutX="463.8" layoutY="200.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kansas City, MO" />
+<Circle fill="red" layoutX="532.5" layoutY="154.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Muskegon, MI" />
+<Circle fill="red" layoutX="440.0" layoutY="154.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sioux City, IA" />
+<Circle fill="red" layoutX="448.5" layoutY="231.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Oklahoma City, OK" />
+<Circle fill="red" layoutX="234.0" layoutY="126.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sun Valley/Hailey/Ketchum, ID" />
+<Circle fill="red" layoutX="601.1" layoutY="299.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Brunswick, GA" />
+<Circle fill="red" layoutX="433.3" layoutY="299.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Laredo, TX" />
+<Circle fill="red" layoutX="593.5" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Myrtle Beach, SC" />
+<Circle fill="red" layoutX="634.0" layoutY="119.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Buffalo, NY" />
+<Circle fill="red" layoutX="563.0" layoutY="276.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Columbus, GA" />
+<Circle fill="red" layoutX="540.1" layoutY="154.7" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Saginaw/Bay City/Midland, MI" />
+<Circle fill="red" layoutX="125.0" layoutY="195.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="San Francisco, CA" />
+<Circle fill="red" layoutX="456.2" layoutY="276.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Waco, TX" />
+<Circle fill="red" layoutX="426.0" layoutY="230.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Wichita, KS" />
+<Circle fill="red" layoutX="585.9" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Augusta, GA" />
+<Circle fill="red" layoutX="658.0" layoutY="96.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Watertown, NY" />
+<Circle fill="red" layoutX="175.0" layoutY="285.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="San Diego, CA" />
+<Circle fill="red" layoutX="494.3" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Jackson/Vicksburg, MS" />
+<Circle fill="red" layoutX="471.4" layoutY="246.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Texarkana, AR" />
+<Circle fill="red" layoutX="688.0" layoutY="79.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Burlington, VT" />
+<Circle fill="red" layoutX="405.0" layoutY="209.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hays, KS" />
+<Circle fill="red" layoutX="410.0" layoutY="59.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Aberdeen, SD" />
+<Circle fill="red" layoutX="256.0" layoutY="259.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Flagstaff, AZ" />
+<Circle fill="red" layoutX="648.0" layoutY="342.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Sanford, FL" />
+<Circle fill="red" layoutX="448.5" layoutY="307.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Brownsville, TX" />
+<Circle fill="red" layoutX="685.0" layoutY="198.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Newport News/Williamsburg, VA" />
+<Circle fill="red" layoutX="543.0" layoutY="421.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Ponce, PR" />
+<Circle fill="red" layoutX="585.9" layoutY="269.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Columbia, SC" />
+<Circle fill="red" layoutX="141.0" layoutY="389.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bethel, AK" />
+<Circle fill="red" layoutX="494.3" layoutY="139.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Minneapolis, MN" />
+<Circle fill="red" layoutX="134.0" layoutY="367.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Nome, AK" />
+<Circle fill="red" layoutX="331.0" layoutY="166.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Laramie, WY" />
+<Circle fill="red" layoutX="517.2" layoutY="223.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Owensboro, KY" />
+<Circle fill="red" layoutX="570.6" layoutY="307.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Panama City, FL" />
+<Circle fill="red" layoutX="667.0" layoutY="115.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Ithaca/Cortland, NY" />
+<Circle fill="red" layoutX="601.1" layoutY="246.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Greenville, NC" />
+<Circle fill="red" layoutX="163.0" layoutY="174.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Reno, NV" />
+<Circle fill="red" layoutX="429.0" layoutY="87.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fargo, ND" />
+<Circle fill="red" layoutX="469.0" layoutY="167.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fort Dodge, IA" />
+<Circle fill="red" layoutX="389.0" layoutY="85.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bismarck/Mandan, ND" />
+<Circle fill="red" layoutX="494.3" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Memphis, TN" />
+<Circle fill="red" layoutX="117.0" layoutY="144.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="North Bend/Coos Bay, OR" />
+<Circle fill="red" layoutX="471.4" layoutY="177.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Waterloo, IA" />
+<Circle fill="red" layoutX="547.7" layoutY="170.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Detroit, MI" />
+<Circle fill="red" layoutX="494.3" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Baton Rouge, LA" />
+<Circle fill="red" layoutX="367.0" layoutY="88.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dickinson, ND" />
+<Circle fill="red" layoutX="698.0" layoutY="129.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="White Plains, NY" />
+<Circle fill="red" layoutX="391.0" layoutY="227.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Garden City, KS" />
+<Circle fill="red" layoutX="202.0" layoutY="77.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Walla Walla, WA" />
+<Circle fill="red" layoutX="725.0" layoutY="23.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Presque Isle/Houlton, ME" />
+<Circle fill="red" layoutX="601.1" layoutY="307.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Tallahassee, FL" />
+<Circle fill="red" layoutX="718.0" layoutY="91.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Portsmouth, NH" />
+<Circle fill="red" layoutX="593.5" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Charleston, SC" />
+<Circle fill="red" layoutX="435.0" layoutY="265.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Abilene, TX" />
+<Circle fill="red" layoutX="479.0" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Monroe, LA" />
+<Circle fill="red" layoutX="501.9" layoutY="192.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Decatur, IL" />
+<Circle fill="red" layoutX="425.6" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Del Rio, TX" />
+<Circle fill="red" layoutX="604.9" layoutY="253.9" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Wilmington, NC" />
+<Circle fill="red" layoutX="141.0" layoutY="96.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Eugene, OR" />
+<Circle fill="red" layoutX="570.6" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Asheville, NC" />
+<Circle fill="red" layoutX="593.5" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lynchburg, VA" />
+<Circle fill="red" layoutX="169.0" layoutY="38.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Everett, WA" />
+<Circle fill="red" layoutX="139.0" layoutY="240.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="San Luis Obispo, CA" />
+<Circle fill="red" layoutX="486.7" layoutY="131.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Brainerd, MN" />
+<Circle fill="red" layoutX="142.0" layoutY="194.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Stockton, CA" />
+<Circle fill="red" layoutX="632.0" layoutY="117.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Niagara Falls, NY" />
+<Circle fill="red" layoutX="255.0" layoutY="304.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Tucson, AZ" />
+<Circle fill="red" layoutX="405.0" layoutY="186.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kearney, NE" />
+<Circle fill="red" layoutX="703.0" layoutY="331.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Christiansted, VI" />
+<Circle fill="red" layoutX="237.0" layoutY="226.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="St. George, UT" />
+<Circle fill="red" layoutX="281.0" layoutY="132.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Jackson, WY" />
+<Circle fill="red" layoutX="532.5" layoutY="185.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fort Wayne, IN" />
+<Circle fill="red" layoutX="229.0" layoutY="144.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Twin Falls, ID" />
+<Circle fill="red" layoutX="547.7" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pensacola, FL" />
+<Circle fill="red" layoutX="471.4" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Beaumont/Port Arthur, TX" />
+<Circle fill="red" layoutX="433.3" layoutY="276.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="San Angelo, TX" />
+<Circle fill="red" layoutX="524.8" layoutY="139.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Escanaba, MI" />
+<Circle fill="red" layoutX="285.0" layoutY="207.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Moab, UT" />
+<Circle fill="red" layoutX="638.0" layoutY="361.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Tampa, FL" />
+<Circle fill="red" layoutX="229.0" layoutY="412.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Ketchikan, AK" />
+<Circle fill="red" layoutX="463.8" layoutY="177.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Des Moines, IA" />
+<Circle fill="red" layoutX="311.0" layoutY="182.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hayden, CO" />
+<Circle fill="red" layoutX="623.0" layoutY="137.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Erie, PA" />
+<Circle fill="red" layoutX="402.0" layoutY="229.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dodge City, KS" />
+<Circle fill="red" layoutX="463.8" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Longview, TX" />
+<Circle fill="red" layoutX="156.0" layoutY="76.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Portland, OR" />
+<Circle fill="red" layoutX="220.0" layoutY="83.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lewiston, ID" />
+<Circle fill="red" layoutX="694.0" layoutY="303.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Charlotte Amalie, VI" />
+      <Circle fill="red" layoutX="47.0" layoutY="174.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Saipan, TT" />
+<Circle fill="red" layoutX="237.0" layoutY="265.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Prescott, AZ" />
+<Circle fill="red" layoutX="221.0" layoutY="402.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Petersburg, AK" />
+<Circle fill="red" layoutX="272.0" layoutY="425.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Pago Pago, TT" />
+<Circle fill="red" layoutX="501.9" layoutY="269.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hattiesburg/Laurel, MS" />
+<Circle fill="red" layoutX="313.0" layoutY="194.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Eagle, CO" />
+<Circle fill="red" layoutX="207.0" layoutY="293.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Yuma, AZ" />
+<Circle fill="red" layoutX="158.0" layoutY="340.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Barrow, AK" />
+<Circle fill="red" layoutX="166.0" layoutY="268.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Santa Ana, CA" />
+<Circle fill="red" layoutX="188.0" layoutY="270.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Palm Springs, CA" />
+<Circle fill="red" layoutX="681.0" layoutY="143.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Allentown/Bethlehem/Easton, PA" />
+<Circle fill="red" layoutX="213.0" layoutY="395.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Juneau, AK" />
+<Circle fill="red" layoutX="636.0" layoutY="158.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Latrobe, PA" />
+<Circle fill="red" layoutX="547.7" layoutY="200.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dayton, OH" />
+<Circle fill="red" layoutX="448.5" layoutY="231.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Stillwater, OK" />
+<Circle fill="red" layoutX="171.0" layoutY="25.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bellingham, WA" />
+<Circle fill="red" layoutX="479.0" layoutY="200.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Columbia, MO" />
+<Circle fill="red" layoutX="697.0" layoutY="158.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Atlantic City, NJ" />
+<Circle fill="red" layoutX="524.8" layoutY="177.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="South Bend, IN" />
+<Circle fill="red" layoutX="132.0" layoutY="221.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Santa Maria, CA" />
+<Circle fill="red" layoutX="442.0" layoutY="258.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dallas/Fort Worth, TX" />
+<Circle fill="red" layoutX="315.0" layoutY="266.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Albuquerque, NM" />
+<Circle fill="red" layoutX="691.0" layoutY="105.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Albany, NY" />
+<Circle fill="red" layoutX="448.5" layoutY="307.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Mission/McAllen/Edinburg, TX" />
+<Circle fill="red" layoutX="162.0" layoutY="238.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bakersfield, CA" />
+<Circle fill="red" layoutX="563.0" layoutY="185.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cleveland, OH" />
+<Circle fill="red" layoutX="160.0" layoutY="269.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Long Beach, CA" />
+<Circle fill="red" layoutX="683.0" layoutY="158.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Wilmington, DE" />
+<Circle fill="red" layoutX="438.0" layoutY="205.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Manhattan/Ft. Riley, KS" />
+<Circle fill="red" layoutX="266.0" layoutY="81.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Helena, MT" />
+<Circle fill="red" layoutX="341.0" layoutY="175.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cheyenne, WY" />
+<Circle fill="red" layoutX="635.0" layoutY="329.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Gainesville, FL" />
+<Circle fill="red" layoutX="501.9" layoutY="208.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Belleville, IL" />
+<Circle fill="red" layoutX="309.0" layoutY="402.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Kona, HI" />
+<Circle fill="red" layoutX="555.3" layoutY="177.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Toledo, OH" />
+<Circle fill="red" layoutX="494.3" layoutY="124.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Duluth, MN" />
+<Circle fill="red" layoutX="384.0" layoutY="179.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="North Platte, NE" />
+<Circle fill="red" layoutX="532.5" layoutY="147.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Traverse City, MI" />
+<Circle fill="red" layoutX="494.3" layoutY="185.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Moline, IL" />
+<Circle fill="red" layoutX="707.0" layoutY="114.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hartford, CT" />
+<Circle fill="red" layoutX="471.4" layoutY="231.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Fayetteville, AR" />
+<Circle fill="red" layoutX="471.4" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Joplin, MO" />
+<Circle fill="red" layoutX="184.0" layoutY="390.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cordova, AK" />
+<Circle fill="red" layoutX="585.9" layoutY="223.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Roanoke, VA" />
+<Circle fill="red" layoutX="486.7" layoutY="269.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Alexandria, LA" />
+<Circle fill="red" layoutX="340.0" layoutY="216.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Colorado Springs, CO" />
+<Circle fill="red" layoutX="663.0" layoutY="82.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Ogdensburg, NY" />
+<Circle fill="red" layoutX="585.9" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Staunton, VA" />
+<Circle fill="red" layoutX="301.0" layoutY="142.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Riverton/Lander, WY" />
+<Circle fill="red" layoutX="664.0" layoutY="404.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Key West, FL" />
+<Circle fill="red" layoutX="517.2" layoutY="147.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Green Bay, WI" />
+<Circle fill="red" layoutX="509.6" layoutY="162.3" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Madison, WI" />
+<Circle fill="red" layoutX="121.0" layoutY="180.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Santa Rosa, CA" />
+<Circle fill="red" layoutX="244.0" layoutY="215.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cedar City, UT" />
+<Circle fill="red" layoutX="293.0" layoutY="120.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Cody, WY" />
+<Circle fill="red" layoutX="723.0" layoutY="101.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Boston, MA" />
+<Circle fill="red" layoutX="578.2" layoutY="208.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Clarksburg/Fairmont, WV" />
+<Circle fill="red" layoutX="227.0" layoutY="403.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Wrangell, AK" />
+<Circle fill="red" layoutX="200.0" layoutY="396.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Yakutat, AK" />
+<Circle fill="red" layoutX="593.5" layoutY="292.1" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Valdosta, GA" />
+<Circle fill="red" layoutX="441.0" layoutY="248.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Wichita Falls, TX" />
+<Circle fill="red" layoutX="486.7" layoutY="177.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dubuque, IA" />
+<Circle fill="red" layoutX="173.0" layoutY="390.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Anchorage, AK" />
+<Circle fill="red" layoutX="593.5" layoutY="215.8" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Charlottesville, VA" />
+<Circle fill="red" layoutX="153.0" layoutY="395.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Dillingham, AK" />
+<Circle fill="red" layoutX="172.0" layoutY="344.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Deadhorse, AK" />
+<Circle fill="red" layoutX="324.0" layoutY="399.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Hilo, HI" />
+<Circle fill="red" layoutX="517.2" layoutY="185.2" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Chicago, IL" />
+<Circle fill="red" layoutX="29.0" layoutY="204.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Guam, TT" />
+<Circle fill="red" layoutX="216.0" layoutY="121.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Boise, ID" />
+<Circle fill="red" layoutX="277.0" layoutY="99.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Bozeman, MT" />
+<Circle fill="red" layoutX="509.6" layoutY="177.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Rockford, IL" />
+<Circle fill="red" layoutX="292.0" layoutY="168.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Rock Springs, WY" />
+<Circle fill="red" layoutX="673.0" layoutY="371.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="West Palm Beach/Palm Beach, FL" />
+<Circle fill="red" layoutX="722.0" layoutY="75.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Portland, ME" />
+<Circle fill="red" layoutX="486.7" layoutY="284.4" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Lafayette, LA" />
+<Circle fill="red" layoutX="463.8" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Tyler, TX" />
+<Circle fill="red" layoutX="570.6" layoutY="261.5" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Atlanta, GA" />
+<Circle fill="red" layoutX="258.0" layoutY="175.0" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Salt Lake City, UT" />
+<Circle fill="red" layoutX="555.3" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Chattanooga, TN" />
+			</children>
+	  </Pane>
 <!--  
       <TextField fx:id="flightNumberField" layoutX="443.0" layoutY="208.0" prefWidth="200.0" />
 	  <Button layoutX="658.0" layoutY="208.0" mnemonicParsing="false" onAction="#searchFlight" text="Search Flight">
@@ -42,7 +491,26 @@
    		</font>
 	  </Button>
 -->      
-	  <Label layoutX="447.0" layoutY="184.0" text="Search by Flight:" textFill="WHITE" />
-	  <TextField fx:id="flightSearchField" layoutX="447.0" layoutY="209.0" prefWidth="350.0" />
+
+<Button fx:id="searchFlightsButton" layoutX="884.0" layoutY="139.0" mnemonicParsing="false" onAction="#handleSearchFlights" text="Search Flights">
+    <font>
+        <Font size="20.0" />
+    </font>
+</Button>
+
+<!--
+      <ImageView fitHeight="449.0" fitWidth="763.0" layoutX="219.0" layoutY="337.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@us.png" />
+         </image>
+      </ImageView>
+
+      <Circle fill="red" stroke="BLACK" strokeWidth="0.8" layoutX="916.0" layoutY="470.0" onMouseClicked="#handleCityCircleClick" radius="6.0" userData="New York, NY" />
+ -->      
+<!--
+      <Circle fill="red" stroke="BLACK" strokeWidth="0.8" layoutX="379.0" layoutY="596.0" onMouseClicked="#handleCityCircleClick" radius="6.0" userData="Los Angeles, CA" />
+      <Circle fill="red" stroke="BLACK" strokeWidth="0.8" layoutX="353.0" layoutY="540.0" onMouseClicked="#handleCityCircleClick" radius="6.0" userData="San Jose, CA" />
+      <Circle fill="red" stroke="BLACK" strokeWidth="0.8" layoutX="341.0" layoutY="528.0" onMouseClicked="#handleCityCircleClick" radius="6.0" userData="San Francisco, CA" />
+  -->
    </children>
 </AnchorPane>

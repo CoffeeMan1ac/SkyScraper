@@ -40,4 +40,14 @@ public class Flight {
         this.diverted = data[16];
         this.distance = data[17];
     }
+    
+    public String getFlDate() { return flDate; }
+    public String getMktCarrier() { return mktCarrier; }
+    public String getFlightNum() { return flightNum; }
+    public String getOriginCity() { return originCity; }
+    public String getDestCity() { return destCity; }
+    public String getCrsDepTime() { return crsDepTime; }
+    public String getCrsArrTime() { return crsArrTime; }
+    public String getCancelled() { return cancelled; }
+    public String getDiverted() { return diverted; }
 }

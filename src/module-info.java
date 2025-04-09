@@ -7,5 +7,6 @@ module HelloSceneBuilder {
 	requires com.opencsv;
 	requires org.controlsfx.controls;
 	
-	opens application to javafx.graphics, javafx.fxml;
+	opens application to javafx.graphics, javafx.fxml, javafx.base;
+
 }
