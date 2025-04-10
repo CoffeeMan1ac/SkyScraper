@@ -5,3 +5,4 @@
 bin/
 *.class
 build.fxbuild
+Linux/javafx-sdk-24/lib/libjfxwebkit.so
