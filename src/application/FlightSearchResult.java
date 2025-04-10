@@ -19,7 +19,7 @@ public class FlightSearchResult {
 
     @Override
     public String toString() {
-        return summary; // This is what will be displayed in the dropdown
+        return summary;
     }
 
     

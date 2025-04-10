@@ -1,5 +1,6 @@
 package application;
 
+// Class which represents a single flight
 public class Flight {
     public String flDate;
     public String mktCarrier;
@@ -20,6 +21,7 @@ public class Flight {
     public String diverted;
     public String distance;
 
+    // Constructor, which assigns values from the String array to the instance variables
     public Flight(String[] data) {
         this.flDate = data[0];
         this.mktCarrier = data[1];
@@ -41,6 +43,7 @@ public class Flight {
         this.distance = data[17];
     }
     
+    // Getter methods for instance variables
     public String getFlDate() { return flDate; }
     public String getMktCarrier() { return mktCarrier; }
     public String getFlightNum() { return flightNum; }

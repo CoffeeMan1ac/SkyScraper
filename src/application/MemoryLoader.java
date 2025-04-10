@@ -19,6 +19,7 @@ public class MemoryLoader {
     private static ArrayList<Integer> destCountArray = new ArrayList<>();
 
     public static void importCSVToMemory() {
+    	// Declaration of the instance variables
         if (dataLoaded) {
             System.out.println("Data already loaded into memory.");
             return;
@@ -39,11 +40,10 @@ public class MemoryLoader {
                 throw new RuntimeException("Missing required columns.");
             }
 
+            // Read and store each flight
             String[] row;
             int count = 0;
             while ((row = reader.readNext()) != null) {
-                String origin = row[originIndex].trim();
-                String dest = row[destIndex].trim();
                 allFlights.add(new Flight(row));
                 count++;
             }
@@ -55,7 +55,7 @@ public class MemoryLoader {
             Logger.getLogger(MemoryLoader.class.getName()).log(Level.SEVERE, null, e);
         }
     }
-
+    // Destination counts for each destination
     public static void queryCityDestCounts(String cityName) {
         destArray.clear();
         destCountArray.clear();
@@ -73,6 +73,7 @@ public class MemoryLoader {
             });
     }
 
+    // Getter methods for arraylists and lists
     public static ArrayList<String> getDestList() {
         return destArray;
     }

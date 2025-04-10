@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
-import application.Flight;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.math.BigInteger;
@@ -13,17 +12,16 @@ import java.security.MessageDigest;
 
 
 public class FlightDetailsController {
-
+	
+	// Declaration of the instance variables
 	private static final String API_KEY = "VDjfGgv8mxiTvvLLwGicD6V2eq";
-	@FXML
-	private ImageView airlineLogo;
 
-    @FXML
-    private Label detailsLabel;
+	@FXML private ImageView airlineLogo;
+	@FXML private Label detailsLabel;
 
     private Stage stage;
-
-    // Called from Controller.java to pass the Flight object
+    
+    // Populates the window with flight details and airline logo from API
     public void setFlight(Flight flight) {
         String formattedDetails = String.format(
                 "Flight Info:\n" +
@@ -54,11 +52,12 @@ public class FlightDetailsController {
         loadAirlineLogo(flight.mktCarrier);
     }
     
+    // Loads the logo using AirHex API (MD5 hash signature is calculated for the URL)
     private void loadAirlineLogo(String airlineCode) {
         try {
             String width = "100";
             String height = "100";
-            String type = "s"; // square
+            String type = "s";
             String signatureBase = airlineCode + "_" + width + "_" + height + "_" + type + "_" + API_KEY;
 
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -82,11 +81,11 @@ public class FlightDetailsController {
     }
 
 
-    // Optional, used to close the popup
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
+    // Closes the popup window
     @FXML
     private void closeWindow(ActionEvent event) {
         if (stage != null) {

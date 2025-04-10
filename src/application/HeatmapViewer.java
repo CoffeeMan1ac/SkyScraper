@@ -23,7 +23,6 @@ import java.util.Map;
 
 public class HeatmapViewer {
 
-    // Paths
     private static final String INPUT_SVG = "us.svg";
     private static final String OUTPUT_SVG = "updated_map.svg";
     private static final String CSV_FILE = "flights_full.csv";
@@ -96,6 +95,7 @@ public class HeatmapViewer {
         writer.close();
     }
 
+    // Embeds the updated SVG into the WebView
     private void displaySvgInWebView() {
         File updatedFile = new File(OUTPUT_SVG);
         String svgContent = readSvgContent(updatedFile);
@@ -169,8 +169,7 @@ public class HeatmapViewer {
         webView.getEngine().loadContent(htmlContent);
     }
 
-
-    // read SVG as string
+    // Reads SVG file contents into a string
     private String readSvgContent(File svgFile) {
         try {
             return new String(java.nio.file.Files.readAllBytes(svgFile.toPath()));
@@ -180,6 +179,7 @@ public class HeatmapViewer {
         }
     }
 
+    // Maps a value to the gradient
     private String calculateColor(int stateCount, int minCount, int maxCount) {
         if (maxCount == minCount) {
             return "#808080"; //Default Grey
@@ -194,6 +194,7 @@ public class HeatmapViewer {
         return String.format("#%02X%02X%02X", red, green, blue); 
     }
     
+    // Scene switching
     @FXML
     public void switchToMainFromHeatmap(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));

@@ -20,8 +20,8 @@ import javafx.stage.Stage;
 
 public class FlightResultsController {
 
+	// UI components
     @FXML private TableView<Flight> flightsTable;
-
     @FXML private TableColumn<Flight, String> colDate;
     @FXML private TableColumn<Flight, String> colCarrier;
     @FXML private TableColumn<Flight, String> colFlightNum;
@@ -47,15 +47,16 @@ public class FlightResultsController {
     private List<Flight> allQueryResults = new ArrayList<>();
     private final ObservableList<Flight> visibleFlights = FXCollections.observableArrayList();
 
-    private final int pageSize = 100; // or 500, your choice
+    private final int pageSize = 100;
     private int currentPage = 0;
 
+    // Updates table with current page
     private void updateVisibleFlights() {
         int fromIndex = currentPage * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, allQueryResults.size());
 
         if (fromIndex >= allQueryResults.size()) {
-            visibleFlights.clear(); // no data to show
+            visibleFlights.clear();
         } else {
             visibleFlights.setAll(allQueryResults.subList(fromIndex, toIndex));
         }
@@ -63,7 +64,7 @@ public class FlightResultsController {
         flightsTable.setItems(visibleFlights);
     }
 
-    
+    // Next page
     @FXML
     private void handleNextPage() {
         if ((currentPage + 1) * pageSize < allQueryResults.size()) {
@@ -72,6 +73,7 @@ public class FlightResultsController {
         }
     }
 
+    // Previous page
     @FXML
     private void handlePreviousPage() {
         if (currentPage > 0) {
@@ -80,12 +82,14 @@ public class FlightResultsController {
         }
     }
 
-    
+    // Load queried flights into table
     public void setFlights(List<Flight> filteredFlights) {
         allQueryResults = filteredFlights;
         currentPage = 0;
         updateVisibleFlights();
     }
+    
+    // Scene switching
     @FXML
     private void switchToMainFromResults(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));
