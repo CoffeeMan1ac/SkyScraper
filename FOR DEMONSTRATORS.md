@@ -10,3 +10,6 @@ Run the run.sh file! However, make it executable first (please) -> chmod +x run.
 You must have the java 24 installed.
 Download it [here](https://www.oracle.com/ie/java/technologies/downloads/).
 Install dependencies -> sudo apt install libgtk-3-0 libgstreamer1.0-0 libgstreamer-plugins-base1.0-0 libfreetype6
+Also, download JavaFX 24 SDK [here](https://gluonhq.com/products/javafx/).
+Place javafx-sdk-24 folder into /Linux.
+Program should work after this. Contact keleshod@tcd.ie if it does not.
