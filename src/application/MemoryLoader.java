@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import com.opencsv.CSVReader;
 
 public class MemoryLoader {
-    private static final String CSV_PATH = "C:\\Users\\terminal007\\Desktop\\flights_full.csv";
+    private static final String CSV_PATH = "flights_full.csv";
     public static int queryLimit = 100;
 
     private static final List<Flight> allFlights = new ArrayList<>();
@@ -84,19 +84,4 @@ public class MemoryLoader {
     public static List<Flight> getAllFlights() {
         return allFlights;
     }
-//    public static void printAllUniqueOriginAndDestAirportCodes() {
-//        Set<String> uniqueOriginCodes = allFlights.stream()
-//                .map(f -> f.origin)
-//                .collect(Collectors.toSet());
-//
-//        Set<String> uniqueDestCodes = allFlights.stream()
-//                .map(f -> f.dest)
-//                .collect(Collectors.toSet());
-//
-//        System.out.println("Unique Origin Airport Codes (" + uniqueOriginCodes.size() + "):");
-//        uniqueOriginCodes.forEach(System.out::println);
-//
-//        System.out.println("\nUnique Destination Airport Codes (" + uniqueDestCodes.size() + "):");
-//        uniqueDestCodes.forEach(System.out::println);
-//    }
 }
