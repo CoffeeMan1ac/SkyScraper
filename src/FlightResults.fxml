@@ -5,22 +5,23 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="application.FlightResultsController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.FlightResultsController">
     <children>
-        <TableView fx:id="flightsTable" layoutX="25.0" layoutY="25.0" prefHeight="550.0" prefWidth="950.0">
+        <TableView fx:id="flightsTable" layoutX="25.0" layoutY="38.0" prefHeight="748.0" prefWidth="1150.0">
             <columns>
-                <TableColumn fx:id="colDate" prefWidth="150.0" text="Date" />
-                <TableColumn fx:id="colCarrier" prefWidth="60.0" text="Carrier" />
-                <TableColumn fx:id="colFlightNum" prefWidth="60.0" text="Flight #" />
-                <TableColumn fx:id="colOrigin" prefWidth="200.0" text="From" />
-                <TableColumn fx:id="colDest" prefWidth="200.0" text="To" />
-                <TableColumn fx:id="colDepTime" prefWidth="60.0" text="Dep Time" />
-                <TableColumn fx:id="colArrTime" prefWidth="60.0" text="Arr Time" />
-                <TableColumn fx:id="colCancelled" prefWidth="60.0" text="Cancelled" />
-                <TableColumn fx:id="colDiverted" prefWidth="60.0" text="Diverted" />
+                <TableColumn fx:id="colDate" prefWidth="190.0" text="Date" />
+                <TableColumn fx:id="colCarrier" prefWidth="76.0" text="Carrier" />
+                <TableColumn fx:id="colFlightNum" prefWidth="76.0" text="Flight #" />
+                <TableColumn fx:id="colOrigin" prefWidth="252.0" text="From" />
+                <TableColumn fx:id="colDest" prefWidth="252.0" text="To" />
+                <TableColumn fx:id="colDepTime" prefWidth="76.0" text="Dep Time" />
+                <TableColumn fx:id="colArrTime" prefWidth="76.0" text="Arr Time" />
+                <TableColumn fx:id="colCancelled" prefWidth="66.0" text="Cancelled" />
+                <TableColumn fx:id="colDiverted" prefWidth="66.0" text="Diverted" />
             </columns>
         </TableView>
-        <Button layoutX="844.0" onAction="#handlePreviousPage" text="Previous" />
-		<Button layoutX="918.0" onAction="#handleNextPage" text="Next" />
+        <Button layoutX="1069.0" onAction="#handlePreviousPage" text="Previous" />
+		<Button layoutX="1140.0" onAction="#handleNextPage" text="Next" />
+		<Button layoutX="14.0" mnemonicParsing="false" onAction="#switchToMainFromResults" text="Main menu" />
     </children>
 </AnchorPane>

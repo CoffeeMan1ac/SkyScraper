@@ -21,4 +21,6 @@ public class FlightSearchResult {
     public String toString() {
         return summary; // This is what will be displayed in the dropdown
     }
+
+    
 }

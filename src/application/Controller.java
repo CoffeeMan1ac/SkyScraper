@@ -50,7 +50,7 @@ public class Controller {
     }
 
     
-    private static final Pattern FLIGHT_PATTERN = Pattern.compile("^[A-Z]{2}\\d+$");
+    // private static final Pattern FLIGHT_PATTERN = Pattern.compile("^[A-Z]{2}\\d+$");
     
     @FXML
     private ComboBox<String> carrierComboBox;
@@ -169,38 +169,38 @@ public class Controller {
     }
 
 
-    private void showFlightDetailsFromSummary(String summary) {
-        try {
-            String[] parts = summary.split("\\|")[1].trim().split("(?<=\\D)(?=\\d)"); // Split carrier + number
-            String carrier = parts[0];
-            String number = parts[1];
-
-            Flight matchedFlight = MemoryLoader.getAllFlights().stream()
-                    .filter(f -> f.mktCarrier.equals(carrier) && f.flightNum.equals(number))
-                    .findFirst()
-                    .orElse(null);
-
-            if (matchedFlight == null) {
-                System.out.println("Flight not found.");
-                return;
-            }
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));
-            Parent popupRoot = loader.load();
-
-            FlightDetailsController controller = loader.getController();
-            controller.setFlight(matchedFlight);
-
-            Stage popupStage = new Stage();
-            controller.setStage(popupStage);
-            popupStage.setTitle("Flight Details");
-            popupStage.setScene(new Scene(popupRoot));
-            popupStage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    private void showFlightDetailsFromSummary(String summary) {
+//        try {
+//            String[] parts = summary.split("\\|")[1].trim().split("(?<=\\D)(?=\\d)"); // Split carrier + number
+//            String carrier = parts[0];
+//            String number = parts[1];
+//
+//            Flight matchedFlight = MemoryLoader.getAllFlights().stream()
+//                    .filter(f -> f.mktCarrier.equals(carrier) && f.flightNum.equals(number))
+//                    .findFirst()
+//                    .orElse(null);
+//
+//            if (matchedFlight == null) {
+//                System.out.println("Flight not found.");
+//                return;
+//            }
+//
+//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));
+//            Parent popupRoot = loader.load();
+//
+//            FlightDetailsController controller = loader.getController();
+//            controller.setFlight(matchedFlight);
+//
+//            Stage popupStage = new Stage();
+//            controller.setStage(popupStage);
+//            popupStage.setTitle("Flight Details");
+//            popupStage.setScene(new Scene(popupRoot));
+//            popupStage.show();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @FXML
     public void handleSearchFlights(ActionEvent event) throws IOException {
@@ -323,7 +323,20 @@ public class Controller {
         stage.setScene(scene);
         stage.show();
     }
-
+    
+	public void switchToHeatmapViewer(ActionEvent event) throws IOException {
+	    FXMLLoader loader = new FXMLLoader(getClass().getResource("/Heatmap.fxml"));
+	    root = loader.load();
+	
+	  
+	    HeatmapViewer heatmapController = loader.getController();
+	
+	    stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+	    scene = new Scene(root);
+	    scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+	    stage.setScene(scene);
+	    stage.show();
+	}
     
     private void showFlightDetails(Flight flight) {
         try {
@@ -342,6 +355,8 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+     
     }
 
 }

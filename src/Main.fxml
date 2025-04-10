@@ -14,6 +14,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import org.controlsfx.control.RangeSlider?>
+<?import javafx.scene.effect.DropShadow?>
 
 <AnchorPane id="mainPane" fx:id="mainPane" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
    <children>
@@ -36,6 +37,11 @@
             <Font size="20.0" />
          </font>
       </Button>
+      <Button fx:id="heatmapButton" layoutX="35.0" layoutY="350" mnemonicParsing="false" onAction="#switchToHeatmapViewer" text="View Heatmap">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
       <ComboBox fx:id="cityComboBox" layoutX="35.0" layoutY="-210.0" prefWidth="300.0" />
       <Label layoutX="42.0" layoutY="-185.0" text="Select Origin City:" textFill="WHITE" />
 
@@ -47,10 +53,10 @@
             <Label text="Select time range for departure:" textFill="WHITE" />
             <RangeSlider fx:id="rangeSlider" blockIncrement="30" lowValue="0" majorTickUnit="240" max="1440" min="0" minorTickCount="3" prefWidth="250.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
 
- 
+<!--  
             <Label fx:id="lowValueLabel" text="Start: 08:00" textFill="WHITE" />
             <Label fx:id="highValueLabel" text="End: 17:00" textFill="WHITE" />
-            
+-->            
         </VBox>
     </children>
 </AnchorPane>
@@ -84,7 +90,8 @@
 </AnchorPane>
 	  
 	  <Label layoutX="447.0" layoutY="266.0" text="Search by Flight:" textFill="WHITE" />
-	  <TextField fx:id="flightSearchField" layoutX="447.0" layoutY="291.0" prefWidth="350.0" />
+<TextField fx:id="flightSearchField" layoutX="447.0" layoutY="291.0" prefWidth="350.0" promptText="e.g. AA3844" />
+
 	  <AnchorPane layoutX="35.0" layoutY="135.0" prefWidth="600.0">
     <children>
         <!-- ComboBox 1 with label above it -->
