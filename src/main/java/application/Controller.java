@@ -2,11 +2,15 @@ package application;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.controlsfx.control.PopOver;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.util.StringConverter;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 import javafx.util.Duration;
@@ -23,6 +27,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -44,10 +49,13 @@ public class Controller {
     @FXML private ComboBox<String> carrierComboBox;
     @FXML private ComboBox<String> originCityComboBox;
     @FXML private ComboBox<String> destinationCityComboBox;
-    @FXML private RangeSlider rangeSlider;
-    @FXML private RangeSlider rangeSlider2;
+    @FXML private Button timeButton;
     @FXML private CheckBox option1;
     @FXML private CheckBox option2;
+
+    private RangeSlider rangeSlider;
+    private RangeSlider rangeSlider2;
+    private PopOver timePopOver;
     @FXML ComboBox<String> flightSearchBox;
     @FXML TextField flightSearchField;
     @FXML TextField flightNumberField;
@@ -116,26 +124,16 @@ public class Controller {
         originCityComboBox.setItems(FXCollections.observableArrayList(uniqueCities));
         destinationCityComboBox.setItems(FXCollections.observableArrayList(uniqueDestCities));
 
-        rangeSlider.setLowValue(rangeSlider.getMin());
-        rangeSlider.setHighValue(rangeSlider.getMax());
+        rangeSlider = buildTimeRangeSlider();
+        rangeSlider2 = buildTimeRangeSlider();
 
-        rangeSlider2.setLowValue(rangeSlider2.getMin());
-        rangeSlider2.setHighValue(rangeSlider2.getMax());
-
-        StringConverter<Number> hhmm = new StringConverter<>() {
-            @Override
-            public String toString(Number minutes) {
-                int m = minutes.intValue();
-                return String.format("%02d:%02d", m / 60, m % 60);
-            }
-            @Override
-            public Number fromString(String s) {
-                String[] parts = s.split(":");
-                return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
-            }
-        };
-        rangeSlider.setLabelFormatter(hhmm);
-        rangeSlider2.setLabelFormatter(hhmm);
+        VBox popoverContent = new VBox(10,
+                new Label("Departure"), rangeSlider,
+                new Label("Arrival"), rangeSlider2);
+        popoverContent.setPadding(new Insets(15));
+        timePopOver = new PopOver(popoverContent);
+        timePopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
+        timePopOver.setDetachable(false);
         
         // Tooltips for city map dots
         for (Node node : mapContainer.getChildren()) {
@@ -260,6 +258,35 @@ public class Controller {
         stage.show();
     }
     
+    private RangeSlider buildTimeRangeSlider() {
+        RangeSlider s = new RangeSlider(0, 1440, 0, 1440);
+        s.setMajorTickUnit(240);
+        s.setMinorTickCount(3);
+        s.setBlockIncrement(30);
+        s.setShowTickLabels(true);
+        s.setShowTickMarks(true);
+        s.setSnapToTicks(true);
+        s.setPrefWidth(300);
+        s.setLabelFormatter(new StringConverter<>() {
+            @Override
+            public String toString(Number minutes) {
+                int m = minutes.intValue();
+                return String.format("%02d:%02d", m / 60, m % 60);
+            }
+            @Override
+            public Number fromString(String time) {
+                String[] parts = time.split(":");
+                return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+            }
+        });
+        return s;
+    }
+
+    @FXML
+    public void openTimePopover() {
+        timePopOver.show(timeButton);
+    }
+
     @FXML
     public void toggleMapHeatmap() {
         boolean showHeatmap = mapHeatmapToggle.isSelected();

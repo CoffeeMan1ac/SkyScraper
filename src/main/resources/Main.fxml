@@ -8,7 +8,10 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -21,101 +24,40 @@
 
 <AnchorPane id="mainPane" fx:id="mainPane" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
    <children>
-      <VBox alignment="CENTER" layoutX="0.0" layoutY="20.0" prefWidth="1200.0" spacing="10.0">
-         <children>
-            <!--
-            <Text fill="WHITE" opacity="0.85" stroke="BLACK" strokeWidth="0.4" text="SkyScraper">
-               <font>
-                  <Font name="OCR A Extended" size="50.0" />
-               </font>
-            </Text>
-            -->
-
-         </children>
-      </VBox>
       <Button fx:id="graphsButton" layoutX="35.0" layoutY="-255.0" mnemonicParsing="false" onAction="#switchToGraphs" text="Generate Graph">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <ToggleButton fx:id="mapHeatmapToggle" layoutX="35.0" layoutY="350" mnemonicParsing="false" onAction="#toggleMapHeatmap" text="📍">
-         <font>
-            <Font size="20.0" />
-         </font>
-      </ToggleButton>
       <ComboBox fx:id="cityComboBox" layoutX="35.0" layoutY="-210.0" prefWidth="300.0" />
       <Label layoutX="42.0" layoutY="-185.0" text="Select Origin City:" textFill="WHITE" />
 
-
-<!-- Departure Time Range -->
-<AnchorPane layoutX="35.0" layoutY="200.0" prefWidth="300.0">
-    <children>
-        <VBox alignment="TOP_LEFT" spacing="10.0">
-            <Label text="Select time range for departure:" textFill="WHITE" />
-            <RangeSlider fx:id="rangeSlider" blockIncrement="30" lowValue="0" majorTickUnit="240" max="1440" min="0" minorTickCount="3" prefWidth="250.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
-
-<!--  
-            <Label fx:id="lowValueLabel" text="Start: 08:00" textFill="WHITE" />
-            <Label fx:id="highValueLabel" text="End: 17:00" textFill="WHITE" />
--->            
-        </VBox>
-    </children>
-</AnchorPane>
-
-<!-- Arrival Time Range -->
-<AnchorPane layoutX="335.0" layoutY="200.0" prefWidth="300.0">
-    <children>
-        <VBox alignment="TOP_LEFT" spacing="10.0">
-            <Label text="Select time range for arrival:" textFill="WHITE" />
-            <RangeSlider fx:id="rangeSlider2" blockIncrement="30" lowValue="0" majorTickUnit="240" max="1440" min="0" minorTickCount="3" prefWidth="250.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
-
-<!--             
-            <Label fx:id="lowValueLabel2" text="Start: 08:00" textFill="WHITE" />
-            <Label fx:id="highValueLabel2" text="End: 17:00" textFill="WHITE" />
--->                        
-        </VBox>
-    </children>
-</AnchorPane>
-
-	  
-	  <AnchorPane layoutX="705.0" layoutY="120.0" prefWidth="300.0">
-   <children>
-      <VBox alignment="TOP_LEFT" spacing="10.0">
-         <Label text="Select a preference:" textFill="WHITE" />
-         
-         <CheckBox fx:id="option1" style="-fx-text-fill: white;" text="Show cancelled flights" />
-         <CheckBox fx:id="option2" style="-fx-text-fill: white;" text="Show diverted flights" />
-      </VBox>
-   </children>
-</AnchorPane>
-	  
-	  <Label layoutX="447.0" layoutY="266.0" text="Search by Flight:" textFill="WHITE" />
-<TextField fx:id="flightSearchField" layoutX="447.0" layoutY="291.0" prefWidth="350.0" promptText="e.g. AA3844" />
-
-	  <AnchorPane layoutX="35.0" layoutY="135.0" prefWidth="600.0">
-    <children>
-        <!-- ComboBox 1 with label above it -->
-        <VBox alignment="CENTER" spacing="5.0">
-            <Label text="Select a carrier:" textFill="WHITE" />
-            <ComboBox fx:id="carrierComboBox" prefWidth="200.0" />
-        </VBox>
-
-        <!-- ComboBox 2 with label above it -->
-        <VBox alignment="CENTER" layoutX="220" layoutY="0" spacing="5.0">
-            <Label text="Select origin city:" textFill="WHITE" />
-            <ComboBox fx:id="originCityComboBox" prefWidth="200.0" />
-        </VBox>
-
-        <!-- ComboBox 3 with label above it -->
-        <VBox alignment="CENTER" layoutX="440" layoutY="0" spacing="5.0">
-            <Label text="Select destination city:" textFill="WHITE" />
-            <ComboBox fx:id="destinationCityComboBox" prefWidth="200.0" />
-        </VBox>
-    </children>
-</AnchorPane>
+      <VBox alignment="TOP_CENTER" spacing="12.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" />
+         </padding>
+         <HBox alignment="CENTER" spacing="10.0">
+            <ComboBox fx:id="carrierComboBox" prefWidth="140.0" promptText="Carrier" />
+            <ComboBox fx:id="originCityComboBox" prefWidth="180.0" promptText="Origin" />
+            <ComboBox fx:id="destinationCityComboBox" prefWidth="180.0" promptText="Destination" />
+            <Button fx:id="timeButton" mnemonicParsing="false" onAction="#openTimePopover" prefWidth="120.0" text="Time" />
+            <CheckBox fx:id="option1" text="Cancelled" />
+            <CheckBox fx:id="option2" text="Diverted" />
+            <Button mnemonicParsing="false" onAction="#handleSearchFlights" prefWidth="100.0" text="Search" />
+            <ToggleButton fx:id="mapHeatmapToggle" mnemonicParsing="false" onAction="#toggleMapHeatmap" prefWidth="60.0" text="📍">
+               <font><Font size="18.0" /></font>
+            </ToggleButton>
+         </HBox>
+         <HBox alignment="CENTER" spacing="10.0">
+            <Label text="🔍">
+               <font><Font size="20.0" /></font>
+            </Label>
+            <TextField fx:id="flightSearchField" prefWidth="400.0" promptText="Flight # e.g. AA3844" />
+         </HBox>
+         <Separator prefWidth="600.0" />
 	  
 	  
-	  <StackPane fx:id="mapArea" layoutX="219.0" layoutY="337.0" prefHeight="449.0" prefWidth="763.0">
+	  <StackPane fx:id="mapArea" maxHeight="449.0" maxWidth="763.0" minHeight="449.0" minWidth="763.0" prefHeight="449.0" prefWidth="763.0">
 	    <children>
 	      <Pane fx:id="mapContainer" prefHeight="449.0" prefWidth="763.0">
             <children>
@@ -495,6 +437,7 @@
 	      <WebView fx:id="heatmapWebView" prefHeight="449.0" prefWidth="763.0" visible="false" />
 	    </children>
 	  </StackPane>
+      </VBox>
 <!--
       <TextField fx:id="flightNumberField" layoutX="443.0" layoutY="208.0" prefWidth="200.0" />
 	  <Button layoutX="658.0" layoutY="208.0" mnemonicParsing="false" onAction="#searchFlight" text="Search Flight">
@@ -503,12 +446,6 @@
    		</font>
 	  </Button>
 -->      
-
-<Button fx:id="searchFlightsButton" layoutX="884.0" layoutY="139.0" mnemonicParsing="false" onAction="#handleSearchFlights" text="Search Flights">
-    <font>
-        <Font size="20.0" />
-    </font>
-</Button>
 
 <!--
       <ImageView fitHeight="449.0" fitWidth="763.0" layoutX="219.0" layoutY="337.0" pickOnBounds="true" preserveRatio="true">
