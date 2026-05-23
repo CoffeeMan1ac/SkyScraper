@@ -134,6 +134,11 @@ public class Controller {
         timePopOver = new PopOver(popoverContent);
         timePopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
         timePopOver.setDetachable(false);
+
+        rangeSlider.lowValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
+        rangeSlider.highValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
+        rangeSlider2.lowValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
+        rangeSlider2.highValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
         
         // Tooltips for city map dots
         for (Node node : mapContainer.getChildren()) {
@@ -292,6 +297,22 @@ public class Controller {
     @FXML
     public void openTimePopover() {
         timePopOver.show(timeButton);
+    }
+
+    private void updateTimeButtonLabel() {
+        boolean depChanged = rangeSlider.getLowValue() > 0 || rangeSlider.getHighValue() < 1440;
+        boolean arrChanged = rangeSlider2.getLowValue() > 0 || rangeSlider2.getHighValue() < 1440;
+        if (!depChanged && !arrChanged) {
+            timeButton.setText("Time");
+        } else {
+            timeButton.setText("Dep " + formatRange(rangeSlider) + "\nArr " + formatRange(rangeSlider2));
+        }
+    }
+
+    private static String formatRange(RangeSlider s) {
+        int low = (int) s.getLowValue();
+        int high = (int) s.getHighValue();
+        return String.format("%02d:%02d–%02d:%02d", low / 60, low % 60, high / 60, high % 60);
     }
 
     @FXML
