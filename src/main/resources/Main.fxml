@@ -20,16 +20,14 @@
    <children>
       <VBox alignment="CENTER" layoutX="0.0" layoutY="20.0" prefWidth="1200.0" spacing="10.0">
          <children>
+            <!--
             <Text fill="WHITE" opacity="0.85" stroke="BLACK" strokeWidth="0.4" text="SkyScraper">
                <font>
                   <Font name="OCR A Extended" size="50.0" />
                </font>
             </Text>
-            <Label fx:id="importInfoLabel" style="-fx-padding: 4px;" text="Import info here" textFill="WHITE">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
+            -->
+
          </children>
       </VBox>
       <Button fx:id="graphsButton" layoutX="35.0" layoutY="-255.0" mnemonicParsing="false" onAction="#switchToGraphs" text="Generate Graph">

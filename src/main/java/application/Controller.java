@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
+import javafx.application.Platform;
 import javafx.scene.control.ComboBox;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
@@ -14,7 +15,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -47,7 +47,6 @@ public class Controller {
     @FXML private RadioButton option2;
     @FXML ComboBox<String> flightSearchBox;
     @FXML TextField flightSearchField;
-    @FXML Label importInfoLabel;
     @FXML TextField flightNumberField;
     @FXML private Pane mapContainer;
     @FXML ComboBox<String> cityComboBox;
@@ -64,7 +63,11 @@ public class Controller {
     @FXML
     public void initialize() {
         MemoryLoader.importCSVToMemory();
-        importInfoLabel.setText("Successfully imported " + MemoryLoader.getAllFlights().size() + " flights!");
+
+        Platform.runLater(() -> {
+            Stage stage = (Stage) mainPane.getScene().getWindow();
+            stage.setTitle("SkyScraper — " + MemoryLoader.getAllFlights().size() + " flights");
+        });
 
         Set<String> uniqueCities = MemoryLoader.getAllFlights().stream()
                 .map(f -> f.originCity)

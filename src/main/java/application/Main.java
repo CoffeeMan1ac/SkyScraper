@@ -23,7 +23,7 @@ public class Main extends Application {
             primaryStage.getIcons().add(icon);
 
             primaryStage.setTitle("SkyScraper");
-            primaryStage.setResizable(false);
+            primaryStage.setResizable(true);
             primaryStage.centerOnScreen();
             primaryStage.setScene(scene);
             primaryStage.show();
