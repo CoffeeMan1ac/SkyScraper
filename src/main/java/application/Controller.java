@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 import javafx.application.Platform;
+import javafx.util.StringConverter;
 import javafx.scene.control.ComboBox;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
@@ -114,6 +115,21 @@ public class Controller {
 
         rangeSlider2.setLowValue(rangeSlider2.getMin());
         rangeSlider2.setHighValue(rangeSlider2.getMax());
+
+        StringConverter<Number> hhmm = new StringConverter<>() {
+            @Override
+            public String toString(Number minutes) {
+                int m = minutes.intValue();
+                return String.format("%02d:%02d", m / 60, m % 60);
+            }
+            @Override
+            public Number fromString(String s) {
+                String[] parts = s.split(":");
+                return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+            }
+        };
+        rangeSlider.setLabelFormatter(hhmm);
+        rangeSlider2.setLabelFormatter(hhmm);
         
         // Tooltips for city map dots
         for (Node node : mapContainer.getChildren()) {
