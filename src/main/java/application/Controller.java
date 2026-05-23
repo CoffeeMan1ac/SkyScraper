@@ -282,6 +282,7 @@ public class Controller {
             controller.setFlight(flight);
 
             Stage popupStage = new Stage();
+            popupStage.initOwner(mainPane.getScene().getWindow());
             controller.setStage(popupStage);
             popupStage.setTitle("Flight Details");
             popupStage.setScene(new Scene(popupRoot));
