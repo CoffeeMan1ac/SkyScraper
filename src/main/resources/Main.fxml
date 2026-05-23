@@ -439,6 +439,7 @@
 			</children>
 	  </Pane>
 	      <WebView fx:id="heatmapWebView" prefHeight="449.0" prefWidth="763.0" visible="false" />
+	      <fx:include fx:id="flightDetails" source="FlightDetails.fxml" />
 	    </children>
 	  </StackPane>
       </VBox>

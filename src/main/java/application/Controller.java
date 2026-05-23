@@ -63,6 +63,8 @@ public class Controller {
     @FXML private WebView heatmapWebView;
     @FXML private ToggleButton mapHeatmapToggle;
     @FXML private Label mapDescriptionLabel;
+    @FXML private Node flightDetails;
+    @FXML private FlightDetailsController flightDetailsController;
     @FXML ComboBox<String> cityComboBox;
     @FXML private AnchorPane mainPane;
 
@@ -114,6 +116,9 @@ public class Controller {
             Flight selectedFlight = event.getCompletion().getFlight();
             showFlightDetails(selectedFlight);
         });
+        autoCompletion.setVisibleRowCount(15);
+
+        flightDetailsController.setOnClose(this::hideFlightDetails);
         	
         // Set dropdown values
         ObservableList<String> cityList = FXCollections.observableArrayList(uniqueCities);
@@ -319,6 +324,7 @@ public class Controller {
     @FXML
     public void toggleMapHeatmap() {
         boolean showHeatmap = mapHeatmapToggle.isSelected();
+        flightDetails.setVisible(false);
         mapContainer.setVisible(!showHeatmap);
         heatmapWebView.setVisible(showHeatmap);
         mapHeatmapToggle.setText(showHeatmap ? "Heatmap" : "Map");
@@ -333,25 +339,17 @@ public class Controller {
 
 
     private void showFlightDetails(Flight flight) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));
-            Parent popupRoot = loader.load();
+        flightDetailsController.setFlight(flight);
+        mapContainer.setVisible(false);
+        heatmapWebView.setVisible(false);
+        flightDetails.setVisible(true);
+    }
 
-            FlightDetailsController controller = loader.getController();
-            controller.setFlight(flight);
-
-            Stage popupStage = new Stage();
-            popupStage.initOwner(mainPane.getScene().getWindow());
-            controller.setStage(popupStage);
-            popupStage.setTitle("Flight Details");
-            popupStage.setScene(new Scene(popupRoot));
-            popupStage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-     
+    private void hideFlightDetails() {
+        flightDetails.setVisible(false);
+        boolean showHeatmap = mapHeatmapToggle.isSelected();
+        mapContainer.setVisible(!showHeatmap);
+        heatmapWebView.setVisible(showHeatmap);
     }
 
 }

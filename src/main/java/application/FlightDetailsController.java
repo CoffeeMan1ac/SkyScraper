@@ -2,8 +2,6 @@ package application;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
-import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.math.BigInteger;
@@ -12,15 +10,19 @@ import java.security.MessageDigest;
 
 
 public class FlightDetailsController {
-	
+
 	// Declaration of the instance variables
 	private static final String API_KEY = "VDjfGgv8mxiTvvLLwGicD6V2eq";
 
 	@FXML private ImageView airlineLogo;
 	@FXML private Label detailsLabel;
 
-    private Stage stage;
-    
+    private Runnable onClose;
+
+    public void setOnClose(Runnable onClose) {
+        this.onClose = onClose;
+    }
+
     // Populates the window with flight details and airline logo from API
     public void setFlight(Flight flight) {
         String formattedDetails = String.format(
@@ -48,10 +50,10 @@ public class FlightDetailsController {
         );
 
         detailsLabel.setText(formattedDetails);
-     
+
         loadAirlineLogo(flight.mktCarrier);
     }
-    
+
     // Loads the logo using AirHex API (MD5 hash signature is calculated for the URL)
     private void loadAirlineLogo(String airlineCode) {
         try {
@@ -69,7 +71,7 @@ public class FlightDetailsController {
                     "https://content.airhex.com/content/logos/airlines_%s_%s_%s_%s.png?md5apikey=%s",
                     airlineCode, width, height, type, md5Hash
             );
-            
+
             System.out.println("Airline Logo URL: " + imageUrl);
 
             Image image = new Image(imageUrl, true);
@@ -80,18 +82,8 @@ public class FlightDetailsController {
         }
     }
 
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    // Closes the popup window
     @FXML
-    private void closeWindow(ActionEvent event) {
-        if (stage != null) {
-            stage.close();
-        } else {
-            ((Stage) detailsLabel.getScene().getWindow()).close();
-        }
+    private void closeFlightDetails() {
+        if (onClose != null) onClose.run();
     }
 }
