@@ -62,6 +62,7 @@ public class Controller {
     @FXML private Pane mapContainer;
     @FXML private WebView heatmapWebView;
     @FXML private ToggleButton mapHeatmapToggle;
+    @FXML private Label mapDescriptionLabel;
     @FXML ComboBox<String> cityComboBox;
     @FXML private AnchorPane mainPane;
 
@@ -320,7 +321,10 @@ public class Controller {
         boolean showHeatmap = mapHeatmapToggle.isSelected();
         mapContainer.setVisible(!showHeatmap);
         heatmapWebView.setVisible(showHeatmap);
-        mapHeatmapToggle.setText(showHeatmap ? "🔥" : "📍");
+        mapHeatmapToggle.setText(showHeatmap ? "Heatmap" : "Map");
+        mapDescriptionLabel.setText(showHeatmap
+                ? "Flight density by origin state"
+                : "Click an airport to view its destinations");
         if (showHeatmap && !heatmapGenerated) {
             HeatmapViewer.generate(heatmapWebView);
             heatmapGenerated = true;
