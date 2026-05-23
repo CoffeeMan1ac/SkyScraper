@@ -25,7 +25,7 @@ public class HeatmapViewer {
 
     private static final String INPUT_SVG = "us.svg";
     private static final String OUTPUT_SVG = "updated_map.svg";
-    private static final String CSV_FILE = "flights_full.csv";
+    private static final String CSV_FILE = "flights_sample.csv";
 
    
     private static Map<String, Integer> stateCounts = new HashMap<>();

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import com.opencsv.CSVReader;
 
 public class MemoryLoader {
-    private static final String CSV_PATH = "flights_full.csv";
+    private static final String CSV_PATH = "flights_sample.csv";
     public static int queryLimit = 100;
 
     private static final List<Flight> allFlights = new ArrayList<>();
