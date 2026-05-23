@@ -1,8 +1,19 @@
-# Ignore Eclipse and build files
+# Maven
+target/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
 .classpath
 .project
 .settings/
 bin/
 *.class
 build.fxbuild
-Linux/javafx-sdk-24/lib/libjfxwebkit.so
+
+# Environment
+.env
+
+# Runtime output
+updated_map.svg
