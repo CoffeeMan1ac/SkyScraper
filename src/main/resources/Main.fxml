@@ -3,7 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -80,9 +80,8 @@
       <VBox alignment="TOP_LEFT" spacing="10.0">
          <Label text="Select a preference:" textFill="WHITE" />
          
-         <!-- RadioButtons -->
-         <RadioButton fx:id="option1" style="-fx-text-fill: white;" text="Show cancelled flights" />
-         <RadioButton fx:id="option2" style="-fx-text-fill: white;" text="Show diverted flights" />
+         <CheckBox fx:id="option1" style="-fx-text-fill: white;" text="Show cancelled flights" />
+         <CheckBox fx:id="option2" style="-fx-text-fill: white;" text="Show diverted flights" />
       </VBox>
    </children>
 </AnchorPane>
