@@ -18,11 +18,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
 
@@ -50,8 +52,12 @@ public class Controller {
     @FXML TextField flightSearchField;
     @FXML TextField flightNumberField;
     @FXML private Pane mapContainer;
+    @FXML private WebView heatmapWebView;
+    @FXML private ToggleButton mapHeatmapToggle;
     @FXML ComboBox<String> cityComboBox;
     @FXML private AnchorPane mainPane;
+
+    private boolean heatmapGenerated = false;
     
     // Clickable city dots on the map
     @FXML
@@ -254,18 +260,19 @@ public class Controller {
         stage.show();
     }
     
-	public void switchToHeatmapViewer(ActionEvent event) throws IOException {
-	    FXMLLoader loader = new FXMLLoader(getClass().getResource("/Heatmap.fxml"));
-	    root = loader.load();
-	
-	
-	    stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-	    scene = new Scene(root);
-	    scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-	    stage.setScene(scene);
-	    stage.show();
-	}
-    
+    @FXML
+    public void toggleMapHeatmap() {
+        boolean showHeatmap = mapHeatmapToggle.isSelected();
+        mapContainer.setVisible(!showHeatmap);
+        heatmapWebView.setVisible(showHeatmap);
+        mapHeatmapToggle.setText(showHeatmap ? "🔥" : "📍");
+        if (showHeatmap && !heatmapGenerated) {
+            HeatmapViewer.generate(heatmapWebView);
+            heatmapGenerated = true;
+        }
+    }
+
+
     private void showFlightDetails(Flight flight) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));

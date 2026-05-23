@@ -7,12 +7,15 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
 <?import org.controlsfx.control.RangeSlider?>
 <?import javafx.scene.effect.DropShadow?>
 
@@ -35,11 +38,11 @@
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="heatmapButton" layoutX="35.0" layoutY="350" mnemonicParsing="false" onAction="#switchToHeatmapViewer" text="View Heatmap">
+      <ToggleButton fx:id="mapHeatmapToggle" layoutX="35.0" layoutY="350" mnemonicParsing="false" onAction="#toggleMapHeatmap" text="📍">
          <font>
             <Font size="20.0" />
          </font>
-      </Button>
+      </ToggleButton>
       <ComboBox fx:id="cityComboBox" layoutX="35.0" layoutY="-210.0" prefWidth="300.0" />
       <Label layoutX="42.0" layoutY="-185.0" text="Select Origin City:" textFill="WHITE" />
 
@@ -112,7 +115,9 @@
 </AnchorPane>
 	  
 	  
-	  <Pane fx:id="mapContainer" layoutX="219.0" layoutY="337.0" prefHeight="449.0" prefWidth="763.0">
+	  <StackPane fx:id="mapArea" layoutX="219.0" layoutY="337.0" prefHeight="449.0" prefWidth="763.0">
+	    <children>
+	      <Pane fx:id="mapContainer" prefHeight="449.0" prefWidth="763.0">
             <children>
                 <ImageView fx:id="mapImage" fitHeight="449.0" fitWidth="763.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -487,7 +492,10 @@
 <Circle fill="red" layoutX="555.3" layoutY="238.6" onMouseClicked="#handleCityCircleClick" radius="6.0" stroke="BLACK" strokeWidth="0.8" userData="Chattanooga, TN" />
 			</children>
 	  </Pane>
-<!--  
+	      <WebView fx:id="heatmapWebView" prefHeight="449.0" prefWidth="763.0" visible="false" />
+	    </children>
+	  </StackPane>
+<!--
       <TextField fx:id="flightNumberField" layoutX="443.0" layoutY="208.0" prefWidth="200.0" />
 	  <Button layoutX="658.0" layoutY="208.0" mnemonicParsing="false" onAction="#searchFlight" text="Search Flight">
    		<font>

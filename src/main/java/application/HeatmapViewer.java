@@ -1,13 +1,6 @@
 package application;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.web.WebView;
-import javafx.stage.Stage;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,15 +20,9 @@ public class HeatmapViewer {
     private static final String OUTPUT_SVG = "updated_map.svg";
     private static final String CSV_FILE = "flights_sample.csv";
 
-   
-    private static Map<String, Integer> stateCounts = new HashMap<>();
+    private static final Map<String, Integer> stateCounts = new HashMap<>();
 
-   
-    @FXML
-    private WebView webView;
-
-    @FXML
-    public void showHeatmap() {
+    public static void generate(WebView webView) {
         try {
             readCsvAndCountStates();
             int minCount = stateCounts.values().stream().min(Integer::compareTo).orElse(0);
@@ -44,59 +31,57 @@ public class HeatmapViewer {
             Document svg = Jsoup.parse(inputFile, "UTF-8");
             updateSvgColors(svg, minCount, maxCount);
             writeUpdatedSvgToFile(svg);
-            displaySvgInWebView();
+            displaySvgInWebView(webView);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void readCsvAndCountStates() throws IOException {
+    private static void readCsvAndCountStates() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(CSV_FILE));
         String line;
         reader.readLine();
         while ((line = reader.readLine()) != null) {
             String[] values = line.split(",");
-            
-            // State Abbreviation column 
+
+            // State Abbreviation column
             String stateAbbr = values[10].trim();
             if (stateAbbr.endsWith("\"")) {
                 stateAbbr = stateAbbr.substring(0, stateAbbr.length() - 1);
             }
 
-          
             stateCounts.put(stateAbbr, stateCounts.getOrDefault(stateAbbr, 0) + 1);
         }
 
         reader.close();
     }
 
-
-    private void updateSvgColors(Document svg, int minCount, int maxCount) {
+    private static void updateSvgColors(Document svg, int minCount, int maxCount) {
         for (Map.Entry<String, Integer> entry : stateCounts.entrySet()) {
-            String stateAbbr = entry.getKey().trim().toUpperCase(); 
+            String stateAbbr = entry.getKey().trim().toUpperCase();
             int stateCount = entry.getValue();
             String color = calculateColor(stateCount, minCount, maxCount);
 
             // Find the state element by ID and update its fill color
             Element stateElement = svg.getElementById(stateAbbr);
-           
+
             if (stateElement != null) {
                 String style = stateElement.attr("style");
                 String updatedStyle = style.replaceAll("fill:\\s*#[A-Fa-f0-9]{6}", "fill:" + color);
                 stateElement.attr("style", updatedStyle);
-            } 
+            }
         }
     }
 
-    private void writeUpdatedSvgToFile(Document svg) throws IOException {
+    private static void writeUpdatedSvgToFile(Document svg) throws IOException {
         FileWriter writer = new FileWriter(OUTPUT_SVG);
         writer.write(svg.outerHtml());
         writer.close();
     }
 
     // Embeds the updated SVG into the WebView
-    private void displaySvgInWebView() {
+    private static void displaySvgInWebView(WebView webView) {
         File updatedFile = new File(OUTPUT_SVG);
         String svgContent = readSvgContent(updatedFile);
 
@@ -170,17 +155,17 @@ public class HeatmapViewer {
     }
 
     // Reads SVG file contents into a string
-    private String readSvgContent(File svgFile) {
+    private static String readSvgContent(File svgFile) {
         try {
             return new String(java.nio.file.Files.readAllBytes(svgFile.toPath()));
         } catch (IOException e) {
             e.printStackTrace();
-            return "<svg></svg>"; 
+            return "<svg></svg>";
         }
     }
 
     // Maps a value to the gradient
-    private String calculateColor(int stateCount, int minCount, int maxCount) {
+    private static String calculateColor(int stateCount, int minCount, int maxCount) {
         if (maxCount == minCount) {
             return "#808080"; //Default Grey
         }
@@ -189,20 +174,8 @@ public class HeatmapViewer {
         double ratio = (double) (stateCount - minCount) / (maxCount - minCount);
         int red = (int) (ratio * 255);
         int blue = (int) ((1 - ratio) * 255);
-        int green = 0; 
+        int green = 0;
 
-        return String.format("#%02X%02X%02X", red, green, blue); 
-    }
-    
-    // Scene switching
-    @FXML
-    public void switchToMainFromHeatmap(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        return String.format("#%02X%02X%02X", red, green, blue);
     }
 }
