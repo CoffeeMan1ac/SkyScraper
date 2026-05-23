@@ -1,40 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.ControllerGraphs">
-   <children>
-      <VBox alignment="CENTER" layoutX="0.0" layoutY="20.0" prefWidth="1200.0" spacing="10.0">
-         <children>
+    <children>
+        <VBox alignment="TOP_CENTER" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Button mnemonicParsing="false" onAction="#switchToMain" text="Main menu" />
+            </HBox>
             <Text fill="WHITE" opacity="0.85" stroke="BLACK" strokeWidth="0.4" text="SkyScraper">
-               <font>
-                  <Font name="OCR A Extended" size="50.0" />
-               </font>
+                <font>
+                    <Font name="OCR A Extended" size="40.0" />
+                </font>
             </Text>
-         </children>
-      </VBox>
-      <Button layoutX="14.0" layoutY="13.0" mnemonicParsing="false" onAction="#switchToMain" text="Main menu" />
-      <Label fx:id="debugLabel" layoutX="14.0" layoutY="75.0" text="Debug info here" textFill="WHITE" />
-      <Label fx:id="sqlLabel" layoutX="14.0" layoutY="100.0" text="Origin City:" textFill="WHITE">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <BarChart fx:id="barChart" layoutX="50.0" layoutY="130.0" prefHeight="620.0" prefWidth="1100.0">
-         <xAxis>
-            <NumberAxis label="Number of Flights" tickLabelFill="WHITE" />
-         </xAxis>
-         <yAxis>
-            <CategoryAxis label="Destination City" tickLabelFill="WHITE" />
-         </yAxis>
-      </BarChart>
-   </children>
+            <Label fx:id="sqlLabel" text="Origin City:" textFill="WHITE">
+                <font><Font size="18.0" /></font>
+            </Label>
+            <Label fx:id="debugLabel" text="Debug info here" textFill="WHITE" />
+            <BarChart fx:id="barChart" VBox.vgrow="ALWAYS">
+                <xAxis>
+                    <NumberAxis label="Number of Flights" tickLabelFill="WHITE" />
+                </xAxis>
+                <yAxis>
+                    <CategoryAxis label="Destination City" tickLabelFill="WHITE" />
+                </yAxis>
+            </BarChart>
+        </VBox>
+    </children>
 </AnchorPane>

@@ -1,27 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.FlightResultsController">
     <children>
-        <TableView fx:id="flightsTable" layoutX="25.0" layoutY="38.0" prefHeight="748.0" prefWidth="1150.0">
-            <columns>
-                <TableColumn fx:id="colDate" prefWidth="190.0" text="Date" />
-                <TableColumn fx:id="colCarrier" prefWidth="76.0" text="Carrier" />
-                <TableColumn fx:id="colFlightNum" prefWidth="76.0" text="Flight #" />
-                <TableColumn fx:id="colOrigin" prefWidth="252.0" text="From" />
-                <TableColumn fx:id="colDest" prefWidth="252.0" text="To" />
-                <TableColumn fx:id="colDepTime" prefWidth="76.0" text="Dep Time" />
-                <TableColumn fx:id="colArrTime" prefWidth="76.0" text="Arr Time" />
-                <TableColumn fx:id="colCancelled" prefWidth="66.0" text="Cancelled" />
-                <TableColumn fx:id="colDiverted" prefWidth="66.0" text="Diverted" />
-            </columns>
-        </TableView>
-        <Button layoutX="1069.0" onAction="#handlePreviousPage" text="Previous" />
-		<Button layoutX="1140.0" onAction="#handleNextPage" text="Next" />
-		<Button layoutX="14.0" mnemonicParsing="false" onAction="#switchToMainFromResults" text="Main menu" />
+        <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+            </padding>
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                <Button mnemonicParsing="false" onAction="#switchToMainFromResults" text="Main menu" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#handlePreviousPage" text="Previous" />
+                <Button onAction="#handleNextPage" text="Next" />
+            </HBox>
+            <TableView fx:id="flightsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colDate" prefWidth="190.0" text="Date" />
+                    <TableColumn fx:id="colCarrier" prefWidth="76.0" text="Carrier" />
+                    <TableColumn fx:id="colFlightNum" prefWidth="76.0" text="Flight #" />
+                    <TableColumn fx:id="colOrigin" prefWidth="252.0" text="From" />
+                    <TableColumn fx:id="colDest" prefWidth="252.0" text="To" />
+                    <TableColumn fx:id="colDepTime" prefWidth="76.0" text="Dep Time" />
+                    <TableColumn fx:id="colArrTime" prefWidth="76.0" text="Arr Time" />
+                    <TableColumn fx:id="colCancelled" prefWidth="66.0" text="Cancelled" />
+                    <TableColumn fx:id="colDiverted" prefWidth="66.0" text="Diverted" />
+                </columns>
+            </TableView>
+        </VBox>
     </children>
 </AnchorPane>
