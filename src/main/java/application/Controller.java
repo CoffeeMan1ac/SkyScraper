@@ -120,9 +120,9 @@ public class Controller {
         cityComboBox.setEditable(true);
         TextFields.bindAutoCompletion(cityComboBox.getEditor(), cityList);
 
-        carrierComboBox.setItems(FXCollections.observableArrayList(uniqueCarriers));
-        originCityComboBox.setItems(FXCollections.observableArrayList(uniqueCities));
-        destinationCityComboBox.setItems(FXCollections.observableArrayList(uniqueDestCities));
+        carrierComboBox.setItems(withBlank(uniqueCarriers));
+        originCityComboBox.setItems(withBlank(uniqueCities));
+        destinationCityComboBox.setItems(withBlank(uniqueDestCities));
 
         rangeSlider = buildTimeRangeSlider();
         rangeSlider2 = buildTimeRangeSlider();
@@ -258,6 +258,13 @@ public class Controller {
         stage.show();
     }
     
+    private static ObservableList<String> withBlank(Set<String> values) {
+        ObservableList<String> list = FXCollections.observableArrayList();
+        list.add("");
+        list.addAll(values);
+        return list;
+    }
+
     private RangeSlider buildTimeRangeSlider() {
         RangeSlider s = new RangeSlider(0, 1440, 0, 1440);
         s.setMajorTickUnit(240);
