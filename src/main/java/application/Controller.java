@@ -68,6 +68,7 @@ public class Controller {
     @FXML TextField flightNumberField;
     @FXML private javafx.scene.layout.StackPane mapArea;
     @FXML private Pane mapContainer;
+    @FXML private TextField dotSearchField;
     @FXML private WebView heatmapWebView;
     @FXML private ToggleButton mapHeatmapToggle;
     @FXML private Label mapDescriptionLabel;
@@ -77,6 +78,26 @@ public class Controller {
     @FXML private AnchorPane mainPane;
 
     private boolean heatmapGenerated = false;
+
+    // State for the dot-search feature
+    private final java.util.List<Airport> airports = new java.util.ArrayList<>();
+    private final java.util.List<Label> searchLabels = new java.util.ArrayList<>();
+    private javafx.scene.Group mapContent;
+    private double canvasW = 763, canvasH = 449;
+
+    private static final class Airport {
+        final String iata, city, state;
+        final double x, y;
+        final Circle circle;
+        Airport(String iata, String city, String state, double x, double y, Circle circle) {
+            this.iata = iata;
+            this.city = city;
+            this.state = state;
+            this.x = x;
+            this.y = y;
+            this.circle = circle;
+        }
+    }
     
     // Clickable city dots on the map
     @FXML
@@ -170,10 +191,13 @@ public class Controller {
         rangeSlider2.highValueChangingProperty().addListener(onDragEnd);
         
         buildMap();
+        dotSearchField.textProperty().addListener((obs, oldV, newV) -> applyDotSearch(newV));
     }
 
     private void buildMap() {
         mapContainer.getChildren().clear();
+        airports.clear();
+        searchLabels.clear();
 
         // Airports that appear in the currently loaded flight data.
         java.util.Set<String> activeIatas = new java.util.HashSet<>();
@@ -187,11 +211,18 @@ public class Controller {
         if (activeIatas.size() > 150) {
             scale = Math.min(1.44, Math.sqrt(activeIatas.size() / 150.0));
         }
-        double width = Math.round(763.0 * scale);
-        double height = Math.round(449.0 * scale);
-        setMapAreaSize(width, height);
+        canvasW = Math.round(763.0 * scale);
+        canvasH = Math.round(449.0 * scale);
+        setMapAreaSize(canvasW, canvasH);
+        mapContainer.setClip(new javafx.scene.shape.Rectangle(canvasW, canvasH));
 
-        AlbersUsa projection = new AlbersUsa(width, height);
+        // Map content (states + dots) lives inside a Group so we can transform
+        // for the search-zoom; labels go directly on mapContainer so their
+        // text size doesn't scale with the zoom.
+        mapContent = new javafx.scene.Group();
+        mapContainer.getChildren().add(mapContent);
+
+        AlbersUsa projection = new AlbersUsa(canvasW, canvasH);
 
         try (InputStream is = getClass().getResourceAsStream("/us-states-10m.json")) {
             if (is == null) throw new IOException("Missing resource: /us-states-10m.json");
@@ -200,7 +231,7 @@ public class Controller {
             states.setFill(Color.web("#f5f1e6"));
             states.setStroke(Color.web("#888888"));
             states.setStrokeWidth(0.6);
-            mapContainer.getChildren().add(states);
+            mapContent.getChildren().add(states);
         } catch (IOException e) {
             System.err.println("Failed to load state outlines: " + e.getMessage());
         }
@@ -213,7 +244,6 @@ public class Controller {
         try (CSVReader reader = new CSVReader(new InputStreamReader(csv, StandardCharsets.UTF_8))) {
             reader.readNext(); // header
             String[] row;
-            int drawn = 0;
             while ((row = reader.readNext()) != null) {
                 if (row.length < 5) continue;
                 String iata = row[0];
@@ -241,12 +271,80 @@ public class Controller {
                 Tooltip tip = new Tooltip(iata + " — " + city + ", " + state);
                 tip.setShowDelay(Duration.millis(200));
                 Tooltip.install(c, tip);
-                mapContainer.getChildren().add(c);
-                drawn++;
+                mapContent.getChildren().add(c);
+                airports.add(new Airport(iata, city, state, xy[0], xy[1], c));
             }
-            System.out.println("Map: " + drawn + " airport dots from " + activeIatas.size() + " active IATAs.");
+            System.out.println("Map: " + airports.size() + " airport dots from " + activeIatas.size() + " active IATAs.");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /** Filters map dots by IATA / city / state prefix; greens matches, zooms to their bbox, shows labels. */
+    private void applyDotSearch(String rawQuery) {
+        String query = rawQuery == null ? "" : rawQuery.trim().toLowerCase();
+
+        // Clear previous overlay labels first.
+        mapContainer.getChildren().removeAll(searchLabels);
+        searchLabels.clear();
+
+        if (query.isEmpty()) {
+            for (Airport a : airports) a.circle.setFill(Color.RED);
+            mapContent.getTransforms().clear();
+            return;
+        }
+
+        java.util.List<Airport> matched = new java.util.ArrayList<>();
+        for (Airport a : airports) {
+            boolean m = a.iata.toLowerCase().startsWith(query)
+                    || a.city.toLowerCase().startsWith(query)
+                    || a.state.toLowerCase().startsWith(query);
+            a.circle.setFill(m ? Color.LIMEGREEN : Color.RED);
+            if (m) matched.add(a);
+        }
+
+        if (matched.isEmpty()) {
+            mapContent.getTransforms().clear();
+            return;
+        }
+
+        // Bbox of matched in canvas coords.
+        double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
+        for (Airport a : matched) {
+            if (a.x < minX) minX = a.x;
+            if (a.y < minY) minY = a.y;
+            if (a.x > maxX) maxX = a.x;
+            if (a.y > maxY) maxY = a.y;
+        }
+        // Pad single-point bboxes so the zoom stays sane.
+        double bboxW = Math.max(40, maxX - minX);
+        double bboxH = Math.max(40, maxY - minY);
+        double margin = 0.85;
+        double s = Math.min(6.0, Math.min(canvasW * margin / bboxW, canvasH * margin / bboxH));
+        double bboxCX = (minX + maxX) / 2;
+        double bboxCY = (minY + maxY) / 2;
+        double tx = canvasW / 2 - s * bboxCX;
+        double ty = canvasH / 2 - s * bboxCY;
+
+        javafx.scene.transform.Affine af = new javafx.scene.transform.Affine();
+        af.appendTranslation(tx, ty);
+        af.appendScale(s, s);
+        mapContent.getTransforms().setAll(af);
+
+        // Labels above matched dots — cap so we don't drown the canvas in text.
+        int LABEL_CAP = 25;
+        if (matched.size() <= LABEL_CAP) {
+            for (Airport a : matched) {
+                Label lab = new Label(a.iata);
+                lab.setStyle("-fx-background-color: rgba(255,255,255,0.9); "
+                        + "-fx-padding: 1 4 1 4; -fx-font-size: 10; -fx-text-fill: black;");
+                lab.setMouseTransparent(true);
+                lab.setLayoutX(s * a.x + tx + 6);
+                lab.setLayoutY(s * a.y + ty - 16);
+                searchLabels.add(lab);
+                mapContainer.getChildren().add(lab);
+            }
         }
     }
 
