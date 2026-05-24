@@ -218,11 +218,7 @@ public class Controller {
         FlightResultsController resultsController = loader.getController();
         resultsController.setFlights(filteredFlights);
 
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(resultsRoot);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        ((Node) event.getSource()).getScene().setRoot(resultsRoot);
     }
     
     // Convert time string
@@ -241,12 +237,8 @@ public class Controller {
     
     // Scene switching
     public void switchToMain(ActionEvent event) throws IOException {
-        root = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
+        ((Node) event.getSource()).getScene().setRoot(newRoot);
     }
 
     public void switchToGraphs(ActionEvent event) throws IOException {
@@ -254,34 +246,25 @@ public class Controller {
         if (selectedCity == null || selectedCity.isEmpty()) return;
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/GraphsScene.fxml"));
-        root = loader.load();
+        Parent newRoot = loader.load();
 
         ControllerGraphs controllerGraphs = loader.getController();
         controllerGraphs.displayInput(selectedCity);
 
-        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        ((Node) event.getSource()).getScene().setRoot(newRoot);
     }
-    
+
     public void switchToGraphsBUTTON() throws IOException {
         String selectedCity = cityComboBox.getEditor().getText();
         if (selectedCity == null || selectedCity.isEmpty()) return;
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/GraphsScene.fxml"));
-        root = loader.load();
+        Parent newRoot = loader.load();
 
         ControllerGraphs controllerGraphs = loader.getController();
         controllerGraphs.displayInput(selectedCity);
 
-        // Correct casting here:
-        stage = (Stage) cityComboBox.getScene().getWindow();
-        scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        cityComboBox.getScene().setRoot(newRoot);
     }
     
     private static ObservableList<String> withAny(String anyLabel, Set<String> values) {

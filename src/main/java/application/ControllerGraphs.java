@@ -75,12 +75,7 @@ public class ControllerGraphs {
 
     // Scene switching
     public void switchToMain(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Main.fxml"));
-        Parent root = loader.load();
-        Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
+        ((Node) event.getSource()).getScene().setRoot(newRoot);
     }
 }
