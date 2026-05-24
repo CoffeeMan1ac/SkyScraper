@@ -69,6 +69,7 @@ public class Controller {
     @FXML private javafx.scene.layout.StackPane mapArea;
     @FXML private Pane mapContainer;
     @FXML private TextField dotSearchField;
+    @FXML private javafx.scene.layout.HBox dotSearchRow;
     @FXML private WebView heatmapWebView;
     @FXML private ToggleButton mapHeatmapToggle;
     @FXML private Label mapDescriptionLabel;
@@ -83,6 +84,9 @@ public class Controller {
     private final java.util.List<Airport> airports = new java.util.ArrayList<>();
     private final java.util.List<Label> searchLabels = new java.util.ArrayList<>();
     private javafx.scene.Group mapContent;
+    private final javafx.scene.transform.Scale mapScale = new javafx.scene.transform.Scale(1, 1, 0, 0);
+    private final javafx.scene.transform.Translate mapTranslate = new javafx.scene.transform.Translate(0, 0);
+    private javafx.animation.Timeline zoomAnim;
     private double canvasW = 763, canvasH = 449;
 
     private static final class Airport {
@@ -192,6 +196,13 @@ public class Controller {
         
         buildMap();
         dotSearchField.textProperty().addListener((obs, oldV, newV) -> applyDotSearch(newV));
+
+        // Hide the airport-search row whenever the heatmap or the flight-details
+        // panel is showing — that search isn't meaningful in those views.
+        dotSearchRow.visibleProperty().bind(
+                flightDetails.visibleProperty().not()
+                        .and(mapHeatmapToggle.selectedProperty().not()));
+        dotSearchRow.managedProperty().bind(dotSearchRow.visibleProperty());
     }
 
     private void buildMap() {
@@ -220,6 +231,12 @@ public class Controller {
         // for the search-zoom; labels go directly on mapContainer so their
         // text size doesn't scale with the zoom.
         mapContent = new javafx.scene.Group();
+        // Order: list-last is innermost — scale first, then translate.
+        mapContent.getTransforms().setAll(mapTranslate, mapScale);
+        mapScale.setX(1);
+        mapScale.setY(1);
+        mapTranslate.setX(0);
+        mapTranslate.setY(0);
         mapContainer.getChildren().add(mapContent);
 
         AlbersUsa projection = new AlbersUsa(canvasW, canvasH);
@@ -269,7 +286,7 @@ public class Controller {
                 c.setUserData(city + ", " + state);
                 c.setOnMouseClicked(this::handleCityCircleClickSafe);
                 Tooltip tip = new Tooltip(iata + " — " + city + ", " + state);
-                tip.setShowDelay(Duration.millis(200));
+                tip.setShowDelay(Duration.millis(60));
                 Tooltip.install(c, tip);
                 mapContent.getChildren().add(c);
                 airports.add(new Airport(iata, city, state, xy[0], xy[1], c));
@@ -290,7 +307,7 @@ public class Controller {
 
         if (query.isEmpty()) {
             for (Airport a : airports) a.circle.setFill(Color.RED);
-            mapContent.getTransforms().clear();
+            animateZoom(1, 0, 0);
             return;
         }
 
@@ -304,7 +321,7 @@ public class Controller {
         }
 
         if (matched.isEmpty()) {
-            mapContent.getTransforms().clear();
+            animateZoom(1, 0, 0);
             return;
         }
 
@@ -327,10 +344,7 @@ public class Controller {
         double tx = canvasW / 2 - s * bboxCX;
         double ty = canvasH / 2 - s * bboxCY;
 
-        javafx.scene.transform.Affine af = new javafx.scene.transform.Affine();
-        af.appendTranslation(tx, ty);
-        af.appendScale(s, s);
-        mapContent.getTransforms().setAll(af);
+        animateZoom(s, tx, ty);
 
         // Labels above matched dots — cap so we don't drown the canvas in text.
         int LABEL_CAP = 25;
@@ -364,6 +378,17 @@ public class Controller {
             r.setPrefSize(w, h);
             r.setMaxSize(w, h);
         }
+    }
+
+    private void animateZoom(double targetScale, double targetTx, double targetTy) {
+        if (zoomAnim != null) zoomAnim.stop();
+        zoomAnim = new javafx.animation.Timeline(new javafx.animation.KeyFrame(
+                Duration.millis(180),
+                new javafx.animation.KeyValue(mapScale.xProperty(), targetScale, javafx.animation.Interpolator.EASE_OUT),
+                new javafx.animation.KeyValue(mapScale.yProperty(), targetScale, javafx.animation.Interpolator.EASE_OUT),
+                new javafx.animation.KeyValue(mapTranslate.xProperty(), targetTx, javafx.animation.Interpolator.EASE_OUT),
+                new javafx.animation.KeyValue(mapTranslate.yProperty(), targetTy, javafx.animation.Interpolator.EASE_OUT)));
+        zoomAnim.play();
     }
 
     private void handleCityCircleClickSafe(MouseEvent event) {
@@ -530,7 +555,7 @@ public class Controller {
         flightDetails.setVisible(false);
         mapContainer.setVisible(!showHeatmap);
         heatmapWebView.setVisible(showHeatmap);
-        mapHeatmapToggle.setText(showHeatmap ? "Heatmap" : "Map");
+        mapHeatmapToggle.setText(showHeatmap ? "Map" : "Heatmap");
         mapDescriptionLabel.setText(showHeatmap
                 ? "Flight density by origin state"
                 : "Click an airport to view its destinations");

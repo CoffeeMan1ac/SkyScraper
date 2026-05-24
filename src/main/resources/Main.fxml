@@ -49,7 +49,7 @@
             <CheckBox fx:id="option1" text="Cancelled" />
             <CheckBox fx:id="option2" text="Diverted" />
             <Button mnemonicParsing="false" onAction="#handleSearchFlights" prefWidth="100.0" text="Search" />
-            <ToggleButton fx:id="mapHeatmapToggle" mnemonicParsing="false" onAction="#toggleMapHeatmap" prefWidth="100.0" text="Map" />
+            <ToggleButton fx:id="mapHeatmapToggle" mnemonicParsing="false" onAction="#toggleMapHeatmap" prefWidth="100.0" text="Heatmap" />
          </HBox>
          <HBox alignment="CENTER" spacing="10.0">
             <Label text="🔍">
@@ -68,8 +68,8 @@
 	      <fx:include fx:id="flightDetails" source="FlightDetails.fxml" />
 	    </children>
 	  </StackPane>
-         <HBox alignment="CENTER" spacing="10.0">
-            <Label text="Search dots:" textFill="WHITE" />
+         <HBox fx:id="dotSearchRow" alignment="CENTER" spacing="10.0">
+            <Label text="Search airports:" textFill="WHITE" />
             <TextField fx:id="dotSearchField" prefWidth="300.0" promptText="IATA, city, or state" />
          </HBox>
       </VBox>
