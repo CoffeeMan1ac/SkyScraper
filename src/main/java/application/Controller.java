@@ -126,16 +126,29 @@ public class Controller {
         cityComboBox.setEditable(true);
         TextFields.bindAutoCompletion(cityComboBox.getEditor(), cityList);
 
-        carrierComboBox.setItems(withBlank(uniqueCarriers));
-        originCityComboBox.setItems(withBlank(uniqueCities));
-        destinationCityComboBox.setItems(withBlank(uniqueDestCities));
+        carrierComboBox.setItems(withAny("Any carrier", uniqueCarriers));
+        carrierComboBox.setValue("Any carrier");
+        originCityComboBox.setItems(withAny("Any origin", uniqueCities));
+        originCityComboBox.setValue("Any origin");
+        destinationCityComboBox.setItems(withAny("Any destination", uniqueDestCities));
+        destinationCityComboBox.setValue("Any destination");
 
         rangeSlider = buildTimeRangeSlider();
         rangeSlider2 = buildTimeRangeSlider();
 
+        Button resetTimeButton = new Button("Reset");
+        resetTimeButton.setOnAction(e -> {
+            rangeSlider.setLowValue(0);
+            rangeSlider.setHighValue(1440);
+            rangeSlider2.setLowValue(0);
+            rangeSlider2.setHighValue(1440);
+            updateTimeButtonLabel();
+        });
+
         VBox popoverContent = new VBox(10,
                 new Label("Departure"), rangeSlider,
-                new Label("Arrival"), rangeSlider2);
+                new Label("Arrival"), rangeSlider2,
+                resetTimeButton);
         popoverContent.setPadding(new Insets(15));
         timePopOver = new PopOver(popoverContent);
         timePopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
@@ -185,9 +198,9 @@ public class Controller {
                     boolean matchDep = depMinutes >= depLow && depMinutes <= depHigh;
                     boolean matchArr = arrMinutes >= arrLow && arrMinutes <= arrHigh;
 
-                    boolean matchCarrier = (selectedCarrier == null || selectedCarrier.isEmpty()) || f.mktCarrier.equals(selectedCarrier);
-                    boolean matchOrigin = (selectedOrigin == null || selectedOrigin.isEmpty()) || f.originCity.equals(selectedOrigin);
-                    boolean matchDest = (selectedDest == null || selectedDest.isEmpty()) || f.destCity.equals(selectedDest);
+                    boolean matchCarrier = isAny(selectedCarrier) || f.mktCarrier.equals(selectedCarrier);
+                    boolean matchOrigin = isAny(selectedOrigin) || f.originCity.equals(selectedOrigin);
+                    boolean matchDest = isAny(selectedDest) || f.destCity.equals(selectedDest);
 
                     boolean matchCancelled = !showCancelled || f.cancelled.equals("1.00");
                     boolean matchDiverted = !showDiverted || f.diverted.equals("1.00");
@@ -271,11 +284,15 @@ public class Controller {
         stage.show();
     }
     
-    private static ObservableList<String> withBlank(Set<String> values) {
+    private static ObservableList<String> withAny(String anyLabel, Set<String> values) {
         ObservableList<String> list = FXCollections.observableArrayList();
-        list.add("");
+        list.add(anyLabel);
         list.addAll(values);
         return list;
+    }
+
+    private static boolean isAny(String value) {
+        return value == null || value.isEmpty() || value.startsWith("Any ");
     }
 
     private RangeSlider buildTimeRangeSlider() {
