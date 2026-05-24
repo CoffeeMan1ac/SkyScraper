@@ -8,6 +8,7 @@ module HelloSceneBuilder {
 	requires org.controlsfx.controls;
 	requires javafx.web;
 	requires org.jsoup;
+	requires com.google.gson;
 	
 	opens application to javafx.graphics, javafx.fxml, javafx.base;
 

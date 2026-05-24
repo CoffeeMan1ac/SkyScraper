@@ -1,7 +1,12 @@
 package application;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.opencsv.CSVReader;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
@@ -28,7 +33,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
@@ -161,15 +168,66 @@ public class Controller {
         rangeSlider2.lowValueChangingProperty().addListener(onDragEnd);
         rangeSlider2.highValueChangingProperty().addListener(onDragEnd);
         
-        // Tooltips for city map dots
-        for (Node node : mapContainer.getChildren()) {
-            if (node instanceof Circle) {
-                Circle circle = (Circle) node;
-                String cityName = (String) circle.getUserData();
-                Tooltip tooltip = new Tooltip(cityName);
-                tooltip.setShowDelay(Duration.ZERO);
-                Tooltip.install(circle, tooltip);
+        buildMap();
+    }
+
+    private void buildMap() {
+        mapContainer.getChildren().clear();
+        mapContainer.setStyle("-fx-background-color: #cfe8ff;");
+
+        try (InputStream is = getClass().getResourceAsStream("/us-states-10m.json")) {
+            String d = TopoJsonStates.toSvgPath(is);
+            SVGPath states = new SVGPath();
+            states.setContent(d);
+            states.setFill(Color.web("#f5f1e6"));
+            states.setStroke(Color.web("#888888"));
+            states.setStrokeWidth(0.6);
+            mapContainer.getChildren().add(states);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (CSVReader reader = new CSVReader(new InputStreamReader(
+                getClass().getResourceAsStream("/us-airports.csv"), StandardCharsets.UTF_8))) {
+            reader.readNext(); // header
+            String[] row;
+            while ((row = reader.readNext()) != null) {
+                if (row.length < 5) continue;
+                String iata = row[0];
+                double lat, lng;
+                try {
+                    lat = Double.parseDouble(row[1]);
+                    lng = Double.parseDouble(row[2]);
+                } catch (NumberFormatException ex) {
+                    continue;
+                }
+                String city = row[3];
+                String state = row[4].startsWith("US-") ? row[4].substring(3) : row[4];
+
+                double[] xy = AlbersUsa.project(lng, lat);
+                if (xy == null) continue;
+
+                Circle c = new Circle(xy[0], xy[1], 4);
+                c.setFill(Color.RED);
+                c.setStroke(Color.BLACK);
+                c.setStrokeWidth(0.6);
+                c.setUserData(city + ", " + state);
+                c.setOnMouseClicked(this::handleCityCircleClickSafe);
+                Tooltip tip = new Tooltip(iata + " — " + city + ", " + state);
+                tip.setShowDelay(Duration.ZERO);
+                Tooltip.install(c, tip);
+                mapContainer.getChildren().add(c);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleCityCircleClickSafe(MouseEvent event) {
+        try {
+            handleCityCircleClick(event);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
