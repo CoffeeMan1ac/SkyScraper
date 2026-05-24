@@ -13,3 +13,8 @@
 .root {
     -fx-background-color: #A7A8AA;
 }
+
+.auto-complete-popup {
+    -fx-pref-width: 400px;
+    -fx-min-width: 400px;
+}
