@@ -141,10 +141,12 @@ public class Controller {
         timePopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
         timePopOver.setDetachable(false);
 
-        rangeSlider.lowValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
-        rangeSlider.highValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
-        rangeSlider2.lowValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
-        rangeSlider2.highValueProperty().addListener((obs, o, n) -> updateTimeButtonLabel());
+        javafx.beans.value.ChangeListener<Boolean> onDragEnd =
+                (obs, wasChanging, isChanging) -> { if (!isChanging) updateTimeButtonLabel(); };
+        rangeSlider.lowValueChangingProperty().addListener(onDragEnd);
+        rangeSlider.highValueChangingProperty().addListener(onDragEnd);
+        rangeSlider2.lowValueChangingProperty().addListener(onDragEnd);
+        rangeSlider2.highValueChangingProperty().addListener(onDragEnd);
         
         // Tooltips for city map dots
         for (Node node : mapContainer.getChildren()) {
@@ -311,14 +313,14 @@ public class Controller {
         if (!depChanged && !arrChanged) {
             timeButton.setText("Time");
         } else {
-            timeButton.setText("Dep " + formatRange(rangeSlider) + "\nArr " + formatRange(rangeSlider2));
+            timeButton.setText("D " + formatHours(rangeSlider) + " A " + formatHours(rangeSlider2));
         }
     }
 
-    private static String formatRange(RangeSlider s) {
-        int low = (int) s.getLowValue();
-        int high = (int) s.getHighValue();
-        return String.format("%02d:%02d–%02d:%02d", low / 60, low % 60, high / 60, high % 60);
+    private static String formatHours(RangeSlider s) {
+        int low = (int) s.getLowValue() / 60;
+        int high = (int) s.getHighValue() / 60;
+        return String.format("%02d–%02d", low, high);
     }
 
     @FXML
