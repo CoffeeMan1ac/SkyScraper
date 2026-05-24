@@ -194,12 +194,12 @@ public class Controller {
         buildMap();
         dotSearchField.textProperty().addListener((obs, oldV, newV) -> applyDotSearch(newV));
 
-        // Hide the airport-search row whenever the heatmap or the flight-details
-        // panel is showing — that search isn't meaningful in those views.
-        dotSearchRow.visibleProperty().bind(
-                flightDetails.visibleProperty().not()
-                        .and(mapHeatmapToggle.selectedProperty().not()));
+        // Hide the airport-search row and the map description whenever the
+        // flight-details panel is showing.
+        dotSearchRow.visibleProperty().bind(flightDetails.visibleProperty().not());
         dotSearchRow.managedProperty().bind(dotSearchRow.visibleProperty());
+        mapDescriptionLabel.visibleProperty().bind(flightDetails.visibleProperty().not());
+        mapDescriptionLabel.managedProperty().bind(mapDescriptionLabel.visibleProperty());
     }
 
     private void buildMap() {
@@ -554,7 +554,7 @@ public class Controller {
         flightDetails.setVisible(false);
         mapHeatmapToggle.setText(showHeatmap ? "Map" : "Heatmap");
         mapDescriptionLabel.setText(showHeatmap
-                ? "Flight density by origin state — red = many, blue = few"
+                ? "Flight density by origin state — red = many, green = few"
                 : "Click an airport to view its destinations");
         if (showHeatmap) {
             applyHeatmapColors();
@@ -577,7 +577,7 @@ public class Controller {
         for (java.util.Map.Entry<String, SVGPath> entry : stateNodes.entrySet()) {
             Integer count = counts.get(entry.getKey());
             entry.getValue().setFill(count == null
-                    ? Color.web("#dddddd")
+                    ? Color.web("#d6d0c4")
                     : heatmapColor(count, min, max));
         }
     }
@@ -589,11 +589,11 @@ public class Controller {
     }
 
     private static Color heatmapColor(int count, int min, int max) {
-        if (max == min) return Color.web("#dddddd");
+        if (max == min) return Color.web("#d6d0c4");
         double t = (double) (count - min) / (max - min);
-        int r = (int) Math.round(t * 255);
-        int b = (int) Math.round((1 - t) * 255);
-        return Color.rgb(r, 0, b);
+        // Warm green → yellow → red via HSB: hue 120° (green) down to 0° (red).
+        double hue = 120.0 * (1.0 - t);
+        return Color.hsb(hue, 0.6, 0.85);
     }
 
 
