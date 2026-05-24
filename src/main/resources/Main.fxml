@@ -18,7 +18,6 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.web.WebView?>
 <?import org.controlsfx.control.RangeSlider?>
 <?import javafx.scene.effect.DropShadow?>
 
@@ -64,7 +63,6 @@
 	  <StackPane fx:id="mapArea" maxHeight="449.0" maxWidth="763.0" minHeight="449.0" minWidth="763.0" prefHeight="449.0" prefWidth="763.0">
 	    <children>
 	      <Pane fx:id="mapContainer" prefHeight="449.0" prefWidth="763.0" />
-	      <WebView fx:id="heatmapWebView" prefHeight="449.0" prefWidth="763.0" visible="false" />
 	      <fx:include fx:id="flightDetails" source="FlightDetails.fxml" />
 	    </children>
 	  </StackPane>

@@ -36,7 +36,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
 
@@ -70,7 +69,6 @@ public class Controller {
     @FXML private Pane mapContainer;
     @FXML private TextField dotSearchField;
     @FXML private javafx.scene.layout.HBox dotSearchRow;
-    @FXML private WebView heatmapWebView;
     @FXML private ToggleButton mapHeatmapToggle;
     @FXML private Label mapDescriptionLabel;
     @FXML private Node flightDetails;
@@ -78,11 +76,10 @@ public class Controller {
     @FXML ComboBox<String> cityComboBox;
     @FXML private AnchorPane mainPane;
 
-    private boolean heatmapGenerated = false;
-
     // State for the dot-search feature
     private final java.util.List<Airport> airports = new java.util.ArrayList<>();
     private final java.util.List<Label> searchLabels = new java.util.ArrayList<>();
+    private final java.util.Map<String, SVGPath> stateNodes = new java.util.LinkedHashMap<>();
     private javafx.scene.Group mapContent;
     private final javafx.scene.transform.Scale mapScale = new javafx.scene.transform.Scale(1, 1, 0, 0);
     private final javafx.scene.transform.Translate mapTranslate = new javafx.scene.transform.Translate(0, 0);
@@ -241,14 +238,19 @@ public class Controller {
 
         AlbersUsa projection = new AlbersUsa(canvasW, canvasH);
 
+        stateNodes.clear();
         try (InputStream is = getClass().getResourceAsStream("/us-states-10m.json")) {
             if (is == null) throw new IOException("Missing resource: /us-states-10m.json");
-            SVGPath states = new SVGPath();
-            states.setContent(TopoJsonStates.toSvgPath(is, projection));
-            states.setFill(Color.web("#f5f1e6"));
-            states.setStroke(Color.web("#888888"));
-            states.setStrokeWidth(0.6);
-            mapContent.getChildren().add(states);
+            java.util.Map<String, String> statePaths = TopoJsonStates.toStatePaths(is, projection);
+            for (java.util.Map.Entry<String, String> e : statePaths.entrySet()) {
+                SVGPath sp = new SVGPath();
+                sp.setContent(e.getValue());
+                sp.setFill(Color.web("#f5f1e6"));
+                sp.setStroke(Color.web("#888888"));
+                sp.setStrokeWidth(0.6);
+                mapContent.getChildren().add(sp);
+                stateNodes.put(e.getKey(), sp);
+            }
         } catch (IOException e) {
             System.err.println("Failed to load state outlines: " + e.getMessage());
         }
@@ -369,9 +371,6 @@ public class Controller {
         mapContainer.setMinSize(w, h);
         mapContainer.setPrefSize(w, h);
         mapContainer.setMaxSize(w, h);
-        heatmapWebView.setMinSize(w, h);
-        heatmapWebView.setPrefSize(w, h);
-        heatmapWebView.setMaxSize(w, h);
         if (flightDetails instanceof javafx.scene.layout.Region) {
             javafx.scene.layout.Region r = (javafx.scene.layout.Region) flightDetails;
             r.setMinSize(w, h);
@@ -553,31 +552,58 @@ public class Controller {
     public void toggleMapHeatmap() {
         boolean showHeatmap = mapHeatmapToggle.isSelected();
         flightDetails.setVisible(false);
-        mapContainer.setVisible(!showHeatmap);
-        heatmapWebView.setVisible(showHeatmap);
         mapHeatmapToggle.setText(showHeatmap ? "Map" : "Heatmap");
         mapDescriptionLabel.setText(showHeatmap
-                ? "Flight density by origin state"
+                ? "Flight density by origin state — red = many, blue = few"
                 : "Click an airport to view its destinations");
-        if (showHeatmap && !heatmapGenerated) {
-            HeatmapViewer.generate(heatmapWebView);
-            heatmapGenerated = true;
+        if (showHeatmap) {
+            applyHeatmapColors();
+        } else {
+            resetStateColors();
         }
+    }
+
+    private void applyHeatmapColors() {
+        java.util.Map<String, Integer> counts = new java.util.HashMap<>();
+        for (Flight f : MemoryLoader.getAllFlights()) {
+            if (f.originState == null) continue;
+            String s = f.originState.trim().replace("\"", "");
+            if (s.isEmpty()) continue;
+            counts.merge(s, 1, Integer::sum);
+        }
+        if (counts.isEmpty()) return;
+        int min = counts.values().stream().min(Integer::compareTo).orElse(0);
+        int max = counts.values().stream().max(Integer::compareTo).orElse(0);
+        for (java.util.Map.Entry<String, SVGPath> entry : stateNodes.entrySet()) {
+            Integer count = counts.get(entry.getKey());
+            entry.getValue().setFill(count == null
+                    ? Color.web("#dddddd")
+                    : heatmapColor(count, min, max));
+        }
+    }
+
+    private void resetStateColors() {
+        for (SVGPath sp : stateNodes.values()) {
+            sp.setFill(Color.web("#f5f1e6"));
+        }
+    }
+
+    private static Color heatmapColor(int count, int min, int max) {
+        if (max == min) return Color.web("#dddddd");
+        double t = (double) (count - min) / (max - min);
+        int r = (int) Math.round(t * 255);
+        int b = (int) Math.round((1 - t) * 255);
+        return Color.rgb(r, 0, b);
     }
 
 
     private void showFlightDetails(Flight flight) {
         flightDetailsController.setFlight(flight);
-        mapContainer.setVisible(false);
-        heatmapWebView.setVisible(false);
         flightDetails.setVisible(true);
     }
 
     private void hideFlightDetails() {
         flightDetails.setVisible(false);
-        boolean showHeatmap = mapHeatmapToggle.isSelected();
-        mapContainer.setVisible(!showHeatmap);
-        heatmapWebView.setVisible(showHeatmap);
     }
 
 }

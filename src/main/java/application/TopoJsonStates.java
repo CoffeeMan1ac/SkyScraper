@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Parses a us-atlas TopoJSON file into a single SVG path d-string, with every
@@ -21,9 +23,30 @@ import java.util.List;
  */
 public final class TopoJsonStates {
 
+    /** us-atlas TopoJSON uses FIPS state codes as feature IDs; map them to 2-letter abbreviations. */
+    private static final Map<String, String> FIPS_TO_ABBR = Map.ofEntries(
+            Map.entry("01", "AL"), Map.entry("02", "AK"), Map.entry("04", "AZ"),
+            Map.entry("05", "AR"), Map.entry("06", "CA"), Map.entry("08", "CO"),
+            Map.entry("09", "CT"), Map.entry("10", "DE"), Map.entry("11", "DC"),
+            Map.entry("12", "FL"), Map.entry("13", "GA"), Map.entry("15", "HI"),
+            Map.entry("16", "ID"), Map.entry("17", "IL"), Map.entry("18", "IN"),
+            Map.entry("19", "IA"), Map.entry("20", "KS"), Map.entry("21", "KY"),
+            Map.entry("22", "LA"), Map.entry("23", "ME"), Map.entry("24", "MD"),
+            Map.entry("25", "MA"), Map.entry("26", "MI"), Map.entry("27", "MN"),
+            Map.entry("28", "MS"), Map.entry("29", "MO"), Map.entry("30", "MT"),
+            Map.entry("31", "NE"), Map.entry("32", "NV"), Map.entry("33", "NH"),
+            Map.entry("34", "NJ"), Map.entry("35", "NM"), Map.entry("36", "NY"),
+            Map.entry("37", "NC"), Map.entry("38", "ND"), Map.entry("39", "OH"),
+            Map.entry("40", "OK"), Map.entry("41", "OR"), Map.entry("42", "PA"),
+            Map.entry("44", "RI"), Map.entry("45", "SC"), Map.entry("46", "SD"),
+            Map.entry("47", "TN"), Map.entry("48", "TX"), Map.entry("49", "UT"),
+            Map.entry("50", "VT"), Map.entry("51", "VA"), Map.entry("53", "WA"),
+            Map.entry("54", "WV"), Map.entry("55", "WI"), Map.entry("56", "WY"));
+
     private TopoJsonStates() {}
 
-    public static String toSvgPath(InputStream topoJsonStream, AlbersUsa projection) {
+    /** Returns one SVG path d-string per state, keyed by 2-letter abbreviation. */
+    public static Map<String, String> toStatePaths(InputStream topoJsonStream, AlbersUsa projection) {
         JsonObject topo = JsonParser.parseReader(
                 new InputStreamReader(topoJsonStream, StandardCharsets.UTF_8)).getAsJsonObject();
 
@@ -51,9 +74,14 @@ public final class TopoJsonStates {
         JsonObject states = topo.getAsJsonObject("objects").getAsJsonObject("states");
         JsonArray geometries = states.getAsJsonArray("geometries");
 
-        StringBuilder d = new StringBuilder();
+        Map<String, String> result = new LinkedHashMap<>();
         for (JsonElement g : geometries) {
             JsonObject geom = g.getAsJsonObject();
+            String fips = geom.has("id") ? geom.get("id").getAsString() : null;
+            String abbr = fips == null ? null : FIPS_TO_ABBR.get(fips);
+            if (abbr == null) continue;
+
+            StringBuilder d = new StringBuilder();
             String type = geom.get("type").getAsString();
             JsonArray geomArcs = geom.getAsJsonArray("arcs");
             if ("Polygon".equals(type)) {
@@ -63,8 +91,9 @@ public final class TopoJsonStates {
                     writePolygon(d, polyArcs.getAsJsonArray(), absArcs, projection);
                 }
             }
+            if (d.length() > 0) result.put(abbr, d.toString());
         }
-        return d.toString();
+        return result;
     }
 
     private static void writePolygon(StringBuilder d, JsonArray rings, double[][][] absArcs, AlbersUsa projection) {
