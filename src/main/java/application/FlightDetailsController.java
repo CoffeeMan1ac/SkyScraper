@@ -4,18 +4,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 
 
 public class FlightDetailsController {
 
-	// Declaration of the instance variables
-	private static final String API_KEY = "VDjfGgv8mxiTvvLLwGicD6V2eq";
-
-	@FXML private ImageView airlineLogo;
-	@FXML private Label detailsLabel;
+    @FXML private ImageView airlineLogo;
+    @FXML private Label airlineFallback;
+    @FXML private Label detailsLabel;
 
     private Runnable onClose;
 
@@ -23,7 +18,6 @@ public class FlightDetailsController {
         this.onClose = onClose;
     }
 
-    // Populates the window with flight details and airline logo from API
     public void setFlight(Flight flight) {
         String formattedDetails = String.format(
                 "Flight Info:\n" +
@@ -54,32 +48,21 @@ public class FlightDetailsController {
         loadAirlineLogo(flight.mktCarrier);
     }
 
-    // Loads the logo using AirHex API (MD5 hash signature is calculated for the URL)
     private void loadAirlineLogo(String airlineCode) {
-        try {
-            String width = "100";
-            String height = "100";
-            String type = "s";
-            String signatureBase = airlineCode + "_" + width + "_" + height + "_" + type + "_" + API_KEY;
+        String imageUrl = String.format("https://images.kiwi.com/airlines/64/%s.png", airlineCode);
 
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hashBytes = md.digest(signatureBase.getBytes(StandardCharsets.UTF_8));
-            BigInteger number = new BigInteger(1, hashBytes);
-            String md5Hash = String.format("%032x", number);
+        airlineFallback.setText(airlineCode);
+        airlineLogo.setVisible(true);
+        airlineFallback.setVisible(false);
 
-            String imageUrl = String.format(
-                    "https://content.airhex.com/content/logos/airlines_%s_%s_%s_%s.png?md5apikey=%s",
-                    airlineCode, width, height, type, md5Hash
-            );
-
-            System.out.println("Airline Logo URL: " + imageUrl);
-
-            Image image = new Image(imageUrl, true);
-            airlineLogo.setImage(image);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Image image = new Image(imageUrl, true);
+        image.errorProperty().addListener((obs, wasError, isError) -> {
+            if (Boolean.TRUE.equals(isError)) {
+                airlineLogo.setVisible(false);
+                airlineFallback.setVisible(true);
+            }
+        });
+        airlineLogo.setImage(image);
     }
 
     @FXML
