@@ -66,6 +66,7 @@ public class Controller {
     @FXML ComboBox<String> flightSearchBox;
     @FXML TextField flightSearchField;
     @FXML TextField flightNumberField;
+    @FXML private javafx.scene.layout.StackPane mapArea;
     @FXML private Pane mapContainer;
     @FXML private WebView heatmapWebView;
     @FXML private ToggleButton mapHeatmapToggle;
@@ -173,27 +174,51 @@ public class Controller {
 
     private void buildMap() {
         mapContainer.getChildren().clear();
-        mapContainer.setStyle("-fx-background-color: #cfe8ff;");
+
+        // Airports that appear in the currently loaded flight data.
+        java.util.Set<String> activeIatas = new java.util.HashSet<>();
+        for (Flight f : MemoryLoader.getAllFlights()) {
+            if (f.origin != null) activeIatas.add(f.origin);
+            if (f.dest != null) activeIatas.add(f.dest);
+        }
+
+        // Canvas grows with dot count above a threshold, capped at ~1.44× the base.
+        double scale = 1.0;
+        if (activeIatas.size() > 150) {
+            scale = Math.min(1.44, Math.sqrt(activeIatas.size() / 150.0));
+        }
+        double width = Math.round(763.0 * scale);
+        double height = Math.round(449.0 * scale);
+        setMapAreaSize(width, height);
+
+        AlbersUsa projection = new AlbersUsa(width, height);
 
         try (InputStream is = getClass().getResourceAsStream("/us-states-10m.json")) {
-            String d = TopoJsonStates.toSvgPath(is);
+            if (is == null) throw new IOException("Missing resource: /us-states-10m.json");
             SVGPath states = new SVGPath();
-            states.setContent(d);
+            states.setContent(TopoJsonStates.toSvgPath(is, projection));
             states.setFill(Color.web("#f5f1e6"));
             states.setStroke(Color.web("#888888"));
             states.setStrokeWidth(0.6);
             mapContainer.getChildren().add(states);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to load state outlines: " + e.getMessage());
         }
 
-        try (CSVReader reader = new CSVReader(new InputStreamReader(
-                getClass().getResourceAsStream("/us-airports.csv"), StandardCharsets.UTF_8))) {
+        InputStream csv = getClass().getResourceAsStream("/us-airports.csv");
+        if (csv == null) {
+            System.err.println("Missing resource: /us-airports.csv");
+            return;
+        }
+        try (CSVReader reader = new CSVReader(new InputStreamReader(csv, StandardCharsets.UTF_8))) {
             reader.readNext(); // header
             String[] row;
+            int drawn = 0;
             while ((row = reader.readNext()) != null) {
                 if (row.length < 5) continue;
                 String iata = row[0];
+                if (!activeIatas.contains(iata)) continue;
+
                 double lat, lng;
                 try {
                     lat = Double.parseDouble(row[1]);
@@ -204,22 +229,42 @@ public class Controller {
                 String city = row[3];
                 String state = row[4].startsWith("US-") ? row[4].substring(3) : row[4];
 
-                double[] xy = AlbersUsa.project(lng, lat);
+                double[] xy = projection.project(lng, lat);
                 if (xy == null) continue;
 
-                Circle c = new Circle(xy[0], xy[1], 4);
+                Circle c = new Circle(xy[0], xy[1], 5);
                 c.setFill(Color.RED);
                 c.setStroke(Color.BLACK);
                 c.setStrokeWidth(0.6);
                 c.setUserData(city + ", " + state);
                 c.setOnMouseClicked(this::handleCityCircleClickSafe);
                 Tooltip tip = new Tooltip(iata + " — " + city + ", " + state);
-                tip.setShowDelay(Duration.ZERO);
+                tip.setShowDelay(Duration.millis(200));
                 Tooltip.install(c, tip);
                 mapContainer.getChildren().add(c);
+                drawn++;
             }
+            System.out.println("Map: " + drawn + " airport dots from " + activeIatas.size() + " active IATAs.");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setMapAreaSize(double w, double h) {
+        mapArea.setMinSize(w, h);
+        mapArea.setPrefSize(w, h);
+        mapArea.setMaxSize(w, h);
+        mapContainer.setMinSize(w, h);
+        mapContainer.setPrefSize(w, h);
+        mapContainer.setMaxSize(w, h);
+        heatmapWebView.setMinSize(w, h);
+        heatmapWebView.setPrefSize(w, h);
+        heatmapWebView.setMaxSize(w, h);
+        if (flightDetails instanceof javafx.scene.layout.Region) {
+            javafx.scene.layout.Region r = (javafx.scene.layout.Region) flightDetails;
+            r.setMinSize(w, h);
+            r.setPrefSize(w, h);
+            r.setMaxSize(w, h);
         }
     }
 

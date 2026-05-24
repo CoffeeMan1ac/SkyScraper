@@ -23,7 +23,7 @@ public final class TopoJsonStates {
 
     private TopoJsonStates() {}
 
-    public static String toSvgPath(InputStream topoJsonStream) {
+    public static String toSvgPath(InputStream topoJsonStream, AlbersUsa projection) {
         JsonObject topo = JsonParser.parseReader(
                 new InputStreamReader(topoJsonStream, StandardCharsets.UTF_8)).getAsJsonObject();
 
@@ -57,17 +57,17 @@ public final class TopoJsonStates {
             String type = geom.get("type").getAsString();
             JsonArray geomArcs = geom.getAsJsonArray("arcs");
             if ("Polygon".equals(type)) {
-                writePolygon(d, geomArcs, absArcs);
+                writePolygon(d, geomArcs, absArcs, projection);
             } else if ("MultiPolygon".equals(type)) {
                 for (JsonElement polyArcs : geomArcs) {
-                    writePolygon(d, polyArcs.getAsJsonArray(), absArcs);
+                    writePolygon(d, polyArcs.getAsJsonArray(), absArcs, projection);
                 }
             }
         }
         return d.toString();
     }
 
-    private static void writePolygon(StringBuilder d, JsonArray rings, double[][][] absArcs) {
+    private static void writePolygon(StringBuilder d, JsonArray rings, double[][][] absArcs, AlbersUsa projection) {
         for (JsonElement ring : rings) {
             JsonArray ringArcs = ring.getAsJsonArray();
             List<double[]> ringPoints = new ArrayList<>();
@@ -94,7 +94,7 @@ public final class TopoJsonStates {
 
             boolean first = true;
             for (double[] pt : ringPoints) {
-                double[] xy = AlbersUsa.project(pt[0], pt[1]);
+                double[] xy = projection.project(pt[0], pt[1]);
                 if (xy == null) continue;
                 if (first) {
                     d.append('M').append(fmt(xy[0])).append(',').append(fmt(xy[1]));
