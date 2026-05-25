@@ -27,7 +27,7 @@
                 </font>
             </Text>
             <Label fx:id="sqlLabel" text="Origin City:" textFill="WHITE">
-                <font><Font size="18.0" /></font>
+                <font><Font size="24.0" /></font>
             </Label>
             <Label fx:id="debugLabel" text="Debug info here" textFill="WHITE" />
             <BarChart fx:id="barChart" VBox.vgrow="ALWAYS">

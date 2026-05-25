@@ -18,3 +18,11 @@
     -fx-pref-width: 400px;
     -fx-min-width: 400px;
 }
+
+/* Graph scene: larger axis tick labels and axis titles */
+.chart .axis {
+    -fx-tick-label-font: 14px;
+}
+.chart .axis-label {
+    -fx-font-size: 16px;
+}
