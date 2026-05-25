@@ -254,9 +254,10 @@ public class Controller {
         }
 
         // Canvas grows with dot count above a threshold, capped at ~1.44× the base.
-        double scale = 1.0;
+        // Baseline is 1.15 — gives a slightly bigger map even at low dot counts.
+        double scale = 1.15;
         if (activeIatas.size() > 150) {
-            scale = Math.min(1.44, Math.sqrt(activeIatas.size() / 150.0));
+            scale = Math.min(1.44, 1.15 * Math.sqrt(activeIatas.size() / 150.0));
         }
         canvasW = Math.round(763.0 * scale);
         canvasH = Math.round(449.0 * scale);
