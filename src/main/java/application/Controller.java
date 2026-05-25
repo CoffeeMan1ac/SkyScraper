@@ -71,6 +71,8 @@ public class Controller {
     @FXML private javafx.scene.layout.HBox dotSearchRow;
     @FXML private ToggleButton mapHeatmapToggle;
     @FXML private Label mapDescriptionLabel;
+    @FXML private javafx.scene.layout.HBox heatmapLegend;
+    @FXML private javafx.scene.shape.Rectangle legendBar;
     @FXML private Node flightDetails;
     @FXML private FlightDetailsController flightDetailsController;
     @FXML ComboBox<String> cityComboBox;
@@ -206,6 +208,13 @@ public class Controller {
         
         buildMap();
         dotSearchField.textProperty().addListener((obs, oldV, newV) -> applyDotSearch(newV));
+
+        // Heatmap legend gradient — matches heatmapColor()'s green→yellow→red ramp.
+        legendBar.setFill(new javafx.scene.paint.LinearGradient(
+                0, 0, 1, 0, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                new javafx.scene.paint.Stop(0,   javafx.scene.paint.Color.hsb(120, 0.6, 0.85)),
+                new javafx.scene.paint.Stop(0.5, javafx.scene.paint.Color.hsb(60,  0.6, 0.85)),
+                new javafx.scene.paint.Stop(1,   javafx.scene.paint.Color.hsb(0,   0.6, 0.85))));
 
         // Hide the airport-search row and the map description whenever the
         // flight-details panel is showing.
@@ -567,8 +576,9 @@ public class Controller {
         flightDetails.setVisible(false);
         mapHeatmapToggle.setText(showHeatmap ? "Map" : "Heatmap");
         mapDescriptionLabel.setText(showHeatmap
-                ? "Flight density by origin state — red = many, green = few"
+                ? "Flight density by origin state"
                 : "Click an airport to view its destinations");
+        heatmapLegend.setVisible(showHeatmap);
         if (showHeatmap) {
             applyHeatmapColors();
         } else {
