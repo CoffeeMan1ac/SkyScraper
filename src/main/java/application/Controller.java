@@ -123,8 +123,14 @@ public class Controller {
         MemoryLoader.importCSVToMemory();
 
         Platform.runLater(() -> {
-            Stage stage = (Stage) mainPane.getScene().getWindow();
-            stage.setTitle("SkyScraper — " + MemoryLoader.getAllFlights().size() + " flights");
+            TitleBar bar = TitleBar.of(mainPane);
+            String title = "SkyScraper — " + MemoryLoader.getAllFlights().size() + " flights";
+            if (bar != null) {
+                bar.setTitle(title);
+            } else {
+                Stage stage = (Stage) mainPane.getScene().getWindow();
+                stage.setTitle(title);
+            }
         });
 
         Set<String> uniqueCities = MemoryLoader.getAllFlights().stream()
@@ -590,7 +596,7 @@ public class Controller {
         FlightResultsController resultsController = loader.getController();
         resultsController.setFlights(filteredFlights);
 
-        ((Node) event.getSource()).getScene().setRoot(resultsRoot);
+        TitleBar.swapCenter((Node) event.getSource(), resultsRoot);
     }
     
     // Convert time string
@@ -610,7 +616,7 @@ public class Controller {
     // Scene switching
     public void switchToMain(ActionEvent event) throws IOException {
         Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        ((Node) event.getSource()).getScene().setRoot(newRoot);
+        TitleBar.swapCenter((Node) event.getSource(), newRoot);
     }
 
     public void switchToGraphs(ActionEvent event) throws IOException {
@@ -623,7 +629,7 @@ public class Controller {
         ControllerGraphs controllerGraphs = loader.getController();
         controllerGraphs.displayInput(selectedCity);
 
-        ((Node) event.getSource()).getScene().setRoot(newRoot);
+        TitleBar.swapCenter((Node) event.getSource(), newRoot);
     }
 
     public void switchToGraphsBUTTON() throws IOException {
@@ -636,7 +642,7 @@ public class Controller {
         ControllerGraphs controllerGraphs = loader.getController();
         controllerGraphs.displayInput(selectedCity);
 
-        cityComboBox.getScene().setRoot(newRoot);
+        TitleBar.swapCenter(cityComboBox, newRoot);
     }
     
     private static ObservableList<String> withAny(String anyLabel, Set<String> values) {
