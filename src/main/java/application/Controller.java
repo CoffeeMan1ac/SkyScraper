@@ -83,6 +83,7 @@ public class Controller {
     private final java.util.List<Label> searchLabels = new java.util.ArrayList<>();
     private final java.util.Map<String, SVGPath> stateNodes = new java.util.LinkedHashMap<>();
     private javafx.scene.Group mapContent;
+    private volatile boolean ignoreFlightFilterOnce = false;
     private final javafx.scene.transform.Scale mapScale = new javafx.scene.transform.Scale(1, 1, 0, 0);
     private final javafx.scene.transform.Translate mapTranslate = new javafx.scene.transform.Translate(0, 0);
     private javafx.animation.Timeline zoomAnim;
@@ -134,22 +135,19 @@ public class Controller {
                 .map(f -> f.mktCarrier)
                 .collect(Collectors.toSet());
         	
-        // Autocomplete flight search field. The converter controls what lands
-        // in the text field after a pick; FlightSearchResult.toString() controls
-        // what shows in the dropdown row — so we get just "AA5" in the field
-        // and the full summary in the list.
-        StringConverter<FlightSearchResult> flightToFieldText = new StringConverter<>() {
-            @Override
-            public String toString(FlightSearchResult fsr) {
-                if (fsr == null) return "";
-                Flight f = fsr.getFlight();
-                return f.mktCarrier + f.flightNum;
-            }
-            @Override
-            public FlightSearchResult fromString(String s) { return null; }
-        };
+        // Autocomplete flight search field. ControlsFX shares one converter
+        // between the dropdown rows and the text-field-after-pick, so we can't
+        // diverge those via the converter. Instead we let the dropdown render
+        // via FlightSearchResult.toString() (the full summary) and then
+        // overwrite the field with just the flight number from inside the
+        // AUTO_COMPLETED handler. A one-shot suppression flag prevents that
+        // overwrite from re-opening the popup against itself.
         AutoCompletionBinding<FlightSearchResult> autoCompletion =
             TextFields.bindAutoCompletion(flightSearchField, param -> {
+                if (ignoreFlightFilterOnce) {
+                    ignoreFlightFilterOnce = false;
+                    return FXCollections.observableArrayList();
+                }
                 String input = param.getUserText().toUpperCase();
                 if (!input.matches("^[A-Z]{2}\\d+$")) {
                     return FXCollections.observableArrayList();
@@ -158,11 +156,17 @@ public class Controller {
                         .filter(f -> (f.mktCarrier + f.flightNum).equalsIgnoreCase(input))
                         .map(f -> new FlightSearchResult(formatFlightSummary(f), f))
                         .collect(Collectors.toList());
-            }, flightToFieldText);
+            });
 
         autoCompletion.setOnAutoCompleted(event -> {
             Flight selectedFlight = event.getCompletion().getFlight();
+            String flightNum = selectedFlight.mktCarrier + selectedFlight.flightNum;
             showFlightDetails(selectedFlight);
+            Platform.runLater(() -> {
+                ignoreFlightFilterOnce = true;
+                flightSearchField.setText(flightNum);
+                flightSearchField.positionCaret(flightNum.length());
+            });
         });
         autoCompletion.setVisibleRowCount(15);
 
