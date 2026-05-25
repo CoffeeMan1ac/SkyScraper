@@ -139,40 +139,12 @@ public class Controller {
                 .map(f -> f.mktCarrier)
                 .collect(Collectors.toSet());
         	
-        // Autocomplete flight search field. ControlsFX shares one converter
-        // between the dropdown rows and the text-field-after-pick, so we can't
-        // diverge those via the converter. Instead we let the dropdown render
-        // via FlightSearchResult.toString() (the full summary) and then
-        // overwrite the field with just the flight number from inside the
-        // AUTO_COMPLETED handler. A one-shot suppression flag prevents that
-        // overwrite from re-opening the popup against itself.
-        AutoCompletionBinding<FlightSearchResult> autoCompletion =
-            TextFields.bindAutoCompletion(flightSearchField, param -> {
-                if (ignoreFlightFilterOnce) {
-                    ignoreFlightFilterOnce = false;
-                    return FXCollections.observableArrayList();
-                }
-                String input = param.getUserText().toUpperCase();
-                if (!input.matches("^[A-Z]{2}\\d+$")) {
-                    return FXCollections.observableArrayList();
-                }
-                return MemoryLoader.getAllFlights().stream()
-                        .filter(f -> (f.mktCarrier + f.flightNum).equalsIgnoreCase(input))
-                        .map(f -> new FlightSearchResult(formatFlightSummary(f), f))
-                        .collect(Collectors.toList());
-            });
-
-        autoCompletion.setOnAutoCompleted(event -> {
-            Flight selectedFlight = event.getCompletion().getFlight();
-            String flightNum = selectedFlight.mktCarrier + selectedFlight.flightNum;
-            showFlightDetails(selectedFlight);
-            Platform.runLater(() -> {
-                ignoreFlightFilterOnce = true;
-                flightSearchField.setText(flightNum);
-                flightSearchField.positionCaret(flightNum.length());
-            });
-        });
-        autoCompletion.setVisibleRowCount(15);
+        // Flight # search uses a hand-rolled Popup + ListView so we can
+        // size the dropdown to the search bar — ControlsFX's autocomplete
+        // popup is inside a non-exported impl package and its internal Scene
+        // doesn't see application.css, so neither programmatic nor CSS
+        // approaches reach it on modular Java.
+        setupFlightAutocomplete();
 
         flightDetailsController.setOnClose(this::hideFlightDetails);
         	
@@ -482,6 +454,87 @@ public class Controller {
                 new javafx.animation.KeyValue(mapTranslate.xProperty(), targetTx, javafx.animation.Interpolator.EASE_OUT),
                 new javafx.animation.KeyValue(mapTranslate.yProperty(), targetTy, javafx.animation.Interpolator.EASE_OUT)));
         zoomAnim.play();
+    }
+
+    private javafx.stage.Popup flightAutocompletePopup;
+    private javafx.scene.control.ListView<Flight> flightAutocompleteList;
+
+    private void setupFlightAutocomplete() {
+        flightAutocompleteList = new javafx.scene.control.ListView<>();
+        flightAutocompleteList.setCellFactory(lv -> new javafx.scene.control.ListCell<Flight>() {
+            @Override
+            protected void updateItem(Flight f, boolean empty) {
+                super.updateItem(f, empty);
+                setText(empty || f == null ? null : formatFlightSummary(f));
+            }
+        });
+        flightAutocompleteList.setFocusTraversable(false);
+
+        flightAutocompletePopup = new javafx.stage.Popup();
+        flightAutocompletePopup.setAutoHide(true);
+        flightAutocompletePopup.setHideOnEscape(true);
+        flightAutocompletePopup.getContent().add(flightAutocompleteList);
+
+        flightAutocompleteList.setOnMouseClicked(e -> {
+            Flight picked = flightAutocompleteList.getSelectionModel().getSelectedItem();
+            if (picked != null) selectFlight(picked);
+        });
+
+        flightSearchField.textProperty().addListener((obs, oldV, newV) -> {
+            if (ignoreFlightFilterOnce) {
+                ignoreFlightFilterOnce = false;
+                flightAutocompletePopup.hide();
+                return;
+            }
+            updateFlightSuggestions(newV);
+        });
+
+        flightSearchField.focusedProperty().addListener((obs, was, isF) -> {
+            if (!isF) Platform.runLater(flightAutocompletePopup::hide);
+        });
+    }
+
+    private void updateFlightSuggestions(String text) {
+        String input = text == null ? "" : text.toUpperCase();
+        if (!input.matches("^[A-Z]{2}\\d+$")) {
+            flightAutocompletePopup.hide();
+            return;
+        }
+        java.util.List<Flight> matches = MemoryLoader.getAllFlights().stream()
+                .filter(f -> (f.mktCarrier + f.flightNum).equalsIgnoreCase(input))
+                .limit(20)
+                .collect(Collectors.toList());
+        if (matches.isEmpty()) {
+            flightAutocompletePopup.hide();
+            return;
+        }
+        flightAutocompleteList.getItems().setAll(matches);
+        // Force the list width to match the search field; this is the whole
+        // point of the rewrite.
+        double w = flightSearchField.getWidth();
+        flightAutocompleteList.setPrefWidth(w);
+        flightAutocompleteList.setMinWidth(w);
+        flightAutocompleteList.setMaxWidth(w);
+        flightAutocompleteList.setPrefHeight(Math.min(220, matches.size() * 24 + 4));
+        javafx.geometry.Bounds b = flightSearchField.localToScreen(flightSearchField.getBoundsInLocal());
+        if (b == null) return;
+        if (flightAutocompletePopup.isShowing()) {
+            flightAutocompletePopup.setX(b.getMinX());
+            flightAutocompletePopup.setY(b.getMaxY());
+        } else {
+            flightAutocompletePopup.show(flightSearchField, b.getMinX(), b.getMaxY());
+        }
+    }
+
+    private void selectFlight(Flight f) {
+        showFlightDetails(f);
+        String flightNum = f.mktCarrier + f.flightNum;
+        Platform.runLater(() -> {
+            ignoreFlightFilterOnce = true;
+            flightSearchField.setText(flightNum);
+            flightSearchField.positionCaret(flightNum.length());
+            flightAutocompletePopup.hide();
+        });
     }
 
     private void handleCityCircleClickSafe(MouseEvent event) {
