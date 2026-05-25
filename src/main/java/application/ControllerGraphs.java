@@ -54,13 +54,49 @@ public class ControllerGraphs {
 
                 debugLabel.setText("Found " + destinations.size() + " destinations.");
 
+                // Shrink y-axis tick-label font so JavaFX's collision check
+                // doesn't drop any name. Per-category slot = plot height / N;
+                // text fits when font ≲ 0.7 × slot. Floor at 3 px so even very
+                // long destination lists stay visible (tooltip on bar hover
+                // recovers readability for the tiny ones).
+                int n = Math.max(1, destinations.size());
+                double plotHeight = 480.0; // conservative estimate for this scene's chart area
+                double fontSize = Math.max(3.0, Math.min(14.0, (plotHeight / n) * 0.7));
+                barChart.getYAxis().setTickLabelFont(javafx.scene.text.Font.font(fontSize));
+
                 XYChart.Series<Number, String> series = new XYChart.Series<>();
                 for (int i = 0; i < destinations.size(); i++) {
-                    series.getData().add(new XYChart.Data<>(counts.get(i), destinations.get(i)));
+                    XYChart.Data<Number, String> d = new XYChart.Data<>(counts.get(i), destinations.get(i));
+                    series.getData().add(d);
                 }
 
                 barChart.getData().clear();
                 barChart.getData().add(series);
+
+                // Hover tooltip on each bar — shows full destination + count
+                // even when the axis label is shrunk to a few pixels.
+                for (XYChart.Data<Number, String> d : series.getData()) {
+                    attachBarTooltip(d);
+                }
+            }
+
+            private void attachBarTooltip(XYChart.Data<Number, String> d) {
+                Runnable install = () -> {
+                    Node bar = d.getNode();
+                    if (bar != null) {
+                        javafx.scene.control.Tooltip t =
+                                new javafx.scene.control.Tooltip(d.getYValue() + " — " + d.getXValue() + " flights");
+                        t.setShowDelay(javafx.util.Duration.millis(60));
+                        javafx.scene.control.Tooltip.install(bar, t);
+                    }
+                };
+                if (d.getNode() != null) {
+                    install.run();
+                } else {
+                    d.nodeProperty().addListener((obs, oldN, newN) -> {
+                        if (newN != null) install.run();
+                    });
+                }
             }
 
 
