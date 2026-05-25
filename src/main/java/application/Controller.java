@@ -84,6 +84,10 @@ public class Controller {
     private final java.util.Map<String, SVGPath> stateNodes = new java.util.LinkedHashMap<>();
     private javafx.scene.Group mapContent;
     private volatile boolean ignoreFlightFilterOnce = false;
+
+    /** Persists the heatmap-toggle state across Controller instances, so the
+     *  toggle stays on after a scene switch and back. */
+    private static boolean heatmapWasOn = false;
     private final javafx.scene.transform.Scale mapScale = new javafx.scene.transform.Scale(1, 1, 0, 0);
     private final javafx.scene.transform.Translate mapTranslate = new javafx.scene.transform.Translate(0, 0);
     private javafx.animation.Timeline zoomAnim;
@@ -229,6 +233,12 @@ public class Controller {
         dotSearchRow.managedProperty().bind(dotSearchRow.visibleProperty());
         mapDescriptionLabel.visibleProperty().bind(flightDetails.visibleProperty().not());
         mapDescriptionLabel.managedProperty().bind(mapDescriptionLabel.visibleProperty());
+
+        // Restore heatmap state from before the last scene switch.
+        if (heatmapWasOn) {
+            mapHeatmapToggle.setSelected(true);
+            toggleMapHeatmap();
+        }
     }
 
     private void buildMap() {
@@ -634,6 +644,7 @@ public class Controller {
     @FXML
     public void toggleMapHeatmap() {
         boolean showHeatmap = mapHeatmapToggle.isSelected();
+        heatmapWasOn = showHeatmap;
         flightDetails.setVisible(false);
         mapHeatmapToggle.setText(showHeatmap ? "Map" : "Heatmap");
         mapDescriptionLabel.setText(showHeatmap
