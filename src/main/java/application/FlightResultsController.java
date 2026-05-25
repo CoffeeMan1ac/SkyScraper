@@ -33,6 +33,7 @@ public class FlightResultsController {
     @FXML private TableColumn<Flight, String> colDiverted;
 
     public void initialize() {
+        flightsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         colDate.setCellValueFactory(new PropertyValueFactory<>("flDate"));
         colCarrier.setCellValueFactory(new PropertyValueFactory<>("mktCarrier"));
         colFlightNum.setCellValueFactory(new PropertyValueFactory<>("flightNum"));
