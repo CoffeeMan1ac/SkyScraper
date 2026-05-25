@@ -129,7 +129,20 @@ public class Controller {
                 .map(f -> f.mktCarrier)
                 .collect(Collectors.toSet());
         	
-        // Autocomplete flight search field
+        // Autocomplete flight search field. The converter controls what lands
+        // in the text field after a pick; FlightSearchResult.toString() controls
+        // what shows in the dropdown row — so we get just "AA5" in the field
+        // and the full summary in the list.
+        StringConverter<FlightSearchResult> flightToFieldText = new StringConverter<>() {
+            @Override
+            public String toString(FlightSearchResult fsr) {
+                if (fsr == null) return "";
+                Flight f = fsr.getFlight();
+                return f.mktCarrier + f.flightNum;
+            }
+            @Override
+            public FlightSearchResult fromString(String s) { return null; }
+        };
         AutoCompletionBinding<FlightSearchResult> autoCompletion =
             TextFields.bindAutoCompletion(flightSearchField, param -> {
                 String input = param.getUserText().toUpperCase();
@@ -140,7 +153,7 @@ public class Controller {
                         .filter(f -> (f.mktCarrier + f.flightNum).equalsIgnoreCase(input))
                         .map(f -> new FlightSearchResult(formatFlightSummary(f), f))
                         .collect(Collectors.toList());
-            });
+            }, flightToFieldText);
 
         autoCompletion.setOnAutoCompleted(event -> {
             Flight selectedFlight = event.getCompletion().getFlight();
