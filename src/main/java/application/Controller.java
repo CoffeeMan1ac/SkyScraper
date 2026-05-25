@@ -90,12 +90,15 @@ public class Controller {
 
     private static final class Airport {
         final String iata, city, state;
-        final double x, y;
+        final double anchorX, anchorY;   // where the airport actually is
+        double x, y;                     // current (post-relaxation) position
         final Circle circle;
         Airport(String iata, String city, String state, double x, double y, Circle circle) {
             this.iata = iata;
             this.city = city;
             this.state = state;
+            this.anchorX = x;
+            this.anchorY = y;
             this.x = x;
             this.y = y;
             this.circle = circle;
@@ -318,6 +321,60 @@ public class Controller {
             System.out.println("Map: " + airports.size() + " airport dots from " + activeIatas.size() + " active IATAs.");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        relaxOverlaps(5.0);
+    }
+
+    /**
+     * Iteratively pushes overlapping dots apart while pulling each toward its
+     * anchor (the actual airport position). Each iteration applies both forces;
+     * loop exits when the largest single push drops below a small threshold or
+     * after a max iteration count. O(n²) per iter — fine for ~hundreds of dots.
+     */
+    private void relaxOverlaps(double radius) {
+        final double minDist = 2 * radius;
+        final double pullStrength = 0.2;
+        final int maxIter = 100;
+        final double convergedThreshold = 0.05;
+
+        for (int iter = 0; iter < maxIter; iter++) {
+            // Spring pull toward anchor.
+            for (Airport a : airports) {
+                a.x += (a.anchorX - a.x) * pullStrength;
+                a.y += (a.anchorY - a.y) * pullStrength;
+            }
+
+            // Push overlapping pairs apart.
+            double maxMove = 0;
+            int n = airports.size();
+            for (int i = 0; i < n; i++) {
+                Airport ai = airports.get(i);
+                for (int j = i + 1; j < n; j++) {
+                    Airport aj = airports.get(j);
+                    double dx = aj.x - ai.x;
+                    double dy = aj.y - ai.y;
+                    double dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist >= minDist) continue;
+                    double ux, uy;
+                    if (dist < 1e-6) { ux = 1; uy = 0; }
+                    else             { ux = dx / dist; uy = dy / dist; }
+                    double push = (minDist - dist) / 2.0;
+                    ai.x -= ux * push;
+                    ai.y -= uy * push;
+                    aj.x += ux * push;
+                    aj.y += uy * push;
+                    if (push > maxMove) maxMove = push;
+                }
+            }
+
+            if (maxMove < convergedThreshold) break;
+        }
+
+        // Apply relaxed positions to the circles.
+        for (Airport a : airports) {
+            a.circle.setCenterX(a.x);
+            a.circle.setCenterY(a.y);
         }
     }
 
