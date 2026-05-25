@@ -123,14 +123,8 @@ public class Controller {
         MemoryLoader.importCSVToMemory();
 
         Platform.runLater(() -> {
-            TitleBar bar = TitleBar.of(mainPane);
-            String title = "SkyScraper — " + MemoryLoader.getAllFlights().size() + " flights";
-            if (bar != null) {
-                bar.setTitle(title);
-            } else {
-                Stage stage = (Stage) mainPane.getScene().getWindow();
-                stage.setTitle(title);
-            }
+            Stage stage = (Stage) mainPane.getScene().getWindow();
+            stage.setTitle("SkyScraper — " + MemoryLoader.getAllFlights().size() + " flights");
         });
 
         Set<String> uniqueCities = MemoryLoader.getAllFlights().stream()
@@ -596,7 +590,7 @@ public class Controller {
         FlightResultsController resultsController = loader.getController();
         resultsController.setFlights(filteredFlights);
 
-        TitleBar.swapCenter((Node) event.getSource(), resultsRoot);
+        Main.swapCenter((Node) event.getSource(), resultsRoot);
     }
     
     // Convert time string
@@ -616,7 +610,7 @@ public class Controller {
     // Scene switching
     public void switchToMain(ActionEvent event) throws IOException {
         Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        TitleBar.swapCenter((Node) event.getSource(), newRoot);
+        Main.swapCenter((Node) event.getSource(), newRoot);
     }
 
     public void switchToGraphs(ActionEvent event) throws IOException {
@@ -629,7 +623,7 @@ public class Controller {
         ControllerGraphs controllerGraphs = loader.getController();
         controllerGraphs.displayInput(selectedCity);
 
-        TitleBar.swapCenter((Node) event.getSource(), newRoot);
+        Main.swapCenter((Node) event.getSource(), newRoot);
     }
 
     public void switchToGraphsBUTTON() throws IOException {
@@ -642,7 +636,7 @@ public class Controller {
         ControllerGraphs controllerGraphs = loader.getController();
         controllerGraphs.displayInput(selectedCity);
 
-        TitleBar.swapCenter(cityComboBox, newRoot);
+        Main.swapCenter(cityComboBox, newRoot);
     }
     
     private static ObservableList<String> withAny(String anyLabel, Set<String> values) {
@@ -683,6 +677,12 @@ public class Controller {
     @FXML
     public void openTimePopover() {
         timePopOver.show(timeButton);
+    }
+
+    @FXML
+    public void openDataset() {
+        Stage stage = (Stage) mainPane.getScene().getWindow();
+        Main.onOpenDataset(stage);
     }
 
     private void updateTimeButtonLabel() {

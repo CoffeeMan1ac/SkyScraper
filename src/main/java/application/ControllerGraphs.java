@@ -166,6 +166,6 @@ public class ControllerGraphs {
     // Scene switching
     public void switchToMain(ActionEvent event) throws IOException {
         Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        TitleBar.swapCenter((Node) event.getSource(), newRoot);
+        Main.swapCenter((Node) event.getSource(), newRoot);
     }
 }

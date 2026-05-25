@@ -94,7 +94,7 @@ public class FlightResultsController {
     @FXML
     private void switchToMainFromResults(ActionEvent event) throws IOException {
         Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        TitleBar.swapCenter((Node) event.getSource(), newRoot);
+        Main.swapCenter((Node) event.getSource(), newRoot);
     }
     
 }
