@@ -53,24 +53,37 @@ public class Main extends Application {
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
         File selectedFile = fc.showOpenDialog(stage);
         if (selectedFile == null) return;
+        loadDataset(stage, selectedFile);
+    }
 
-        System.out.println("Loading dataset: " + selectedFile.getAbsolutePath());
-        javafx.concurrent.Task<Integer> task = MemoryLoader.loadAsync(selectedFile);
+    /** Loads a user-chosen dataset asynchronously; on success it's added to the recents list. */
+    static void loadDataset(Stage stage, File file) {
+        loadDatasetInternal(stage, file, true);
+    }
+
+    /** Loads the bundled sample. Not added to recents — it's always reachable via the Sample menu item. */
+    static void loadBundledSample(Stage stage) {
+        loadDatasetInternal(stage, new File("flights_sample.csv"), false);
+    }
+
+    private static void loadDatasetInternal(Stage stage, File file, boolean addToRecents) {
+        System.out.println("Loading dataset: " + file.getAbsolutePath());
+        javafx.concurrent.Task<Integer> task = MemoryLoader.loadAsync(file);
         task.setOnSucceeded(e -> {
             System.out.println("Loaded " + task.getValue() + " flights.");
-            MemoryLoader.saveLastDatasetPath(selectedFile);
+            if (addToRecents) MemoryLoader.addRecentDataset(file);
             reloadMainScene(stage);
         });
         task.setOnFailed(e -> {
             Throwable ex = task.getException();
             String detail = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "unknown error";
-            System.err.println("Failed to load " + selectedFile + ": " + detail);
+            System.err.println("Failed to load " + file + ": " + detail);
             if (ex != null) ex.printStackTrace();
 
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     javafx.scene.control.Alert.AlertType.ERROR);
             alert.setTitle("Load failed");
-            alert.setHeaderText("Couldn't load " + selectedFile.getName());
+            alert.setHeaderText("Couldn't load " + file.getName());
             alert.setContentText("The file isn't a valid flights CSV. "
                     + "The current dataset is unchanged.\n\n" + detail);
             alert.initOwner(stage);

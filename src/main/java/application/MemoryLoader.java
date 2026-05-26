@@ -17,7 +17,8 @@ public class MemoryLoader {
     public static int queryLimit = 100;
 
     private static final Preferences PREFS = Preferences.userNodeForPackage(MemoryLoader.class);
-    private static final String PREF_LAST_DATASET = "lastDatasetPath";
+    private static final String PREF_RECENT_PREFIX = "recentDataset";
+    private static final int MAX_RECENT = 5;
 
     private static final List<Flight> allFlights = new ArrayList<>();
     private static boolean dataLoaded = false;
@@ -96,26 +97,20 @@ public class MemoryLoader {
     }
 
     /**
-     * Startup entry point. Tries the last-opened dataset (from Preferences);
-     * on miss or failure, falls back to the bundled sample; if that's also
-     * unavailable, leaves the app in an empty-but-functional state. Idempotent
-     * across scene swaps via {@code dataLoaded}.
+     * Startup entry point. Walks the recent-datasets list (most-recent first),
+     * loading the first one that parses; on total miss, falls back to the
+     * bundled sample; if that's also unavailable, leaves the app in an
+     * empty-but-functional state. Idempotent across scene swaps via {@code dataLoaded}.
      */
     public static void importCSVOnStartup() {
         if (dataLoaded) return;
 
-        String saved = PREFS.get(PREF_LAST_DATASET, null);
-        if (saved != null && !saved.isEmpty()) {
-            File f = new File(saved);
-            if (f.isFile()) {
-                try {
-                    importCSVFromFile(f);
-                    return;
-                } catch (Exception e) {
-                    System.err.println("Failed to load saved dataset " + saved + ": " + e.getMessage());
-                }
-            } else {
-                System.err.println("Saved dataset no longer exists: " + saved);
+        for (File f : getRecentDatasets()) {
+            try {
+                importCSVFromFile(f);
+                return;
+            } catch (Exception e) {
+                System.err.println("Failed to load recent dataset " + f + ": " + e.getMessage());
             }
         }
 
@@ -144,11 +139,43 @@ public class MemoryLoader {
         System.out.println("Loaded " + loaded.size() + " flights from " + csvFile.getName());
     }
 
-    public static void saveLastDatasetPath(File f) {
-        if (f == null) {
-            PREFS.remove(PREF_LAST_DATASET);
-        } else {
-            PREFS.put(PREF_LAST_DATASET, f.getAbsolutePath());
+    /**
+     * Returns up to {@link #MAX_RECENT} previously-opened datasets,
+     * most-recently-used first. Stale entries (files that no longer exist) are
+     * filtered out of the returned list but kept in storage in case the user
+     * restores them.
+     */
+    public static List<File> getRecentDatasets() {
+        List<File> out = new ArrayList<>();
+        for (int i = 0; i < MAX_RECENT; i++) {
+            String p = PREFS.get(PREF_RECENT_PREFIX + i, null);
+            if (p == null || p.isEmpty()) continue;
+            File f = new File(p);
+            if (f.isFile()) out.add(f);
+        }
+        return out;
+    }
+
+    /**
+     * Prepends {@code f} to the recent-datasets list, de-duping by absolute path
+     * and trimming to {@link #MAX_RECENT}.
+     */
+    public static void addRecentDataset(File f) {
+        if (f == null) return;
+        String newPath = f.getAbsolutePath();
+
+        List<String> paths = new ArrayList<>();
+        for (int i = 0; i < MAX_RECENT; i++) {
+            String p = PREFS.get(PREF_RECENT_PREFIX + i, null);
+            if (p != null && !p.isEmpty()) paths.add(p);
+        }
+        paths.removeIf(p -> p.equals(newPath));
+        paths.add(0, newPath);
+        if (paths.size() > MAX_RECENT) paths = new ArrayList<>(paths.subList(0, MAX_RECENT));
+
+        for (int i = 0; i < MAX_RECENT; i++) {
+            if (i < paths.size()) PREFS.put(PREF_RECENT_PREFIX + i, paths.get(i));
+            else PREFS.remove(PREF_RECENT_PREFIX + i);
         }
     }
 

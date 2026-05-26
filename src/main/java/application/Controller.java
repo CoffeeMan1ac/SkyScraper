@@ -16,6 +16,9 @@ import javafx.util.StringConverter;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.SplitMenuButton;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 import javafx.util.Duration;
@@ -58,6 +61,7 @@ public class Controller {
     @FXML private Button timeButton;
     @FXML private CheckBox option1;
     @FXML private CheckBox option2;
+    @FXML private SplitMenuButton openDatasetButton;
 
     private RangeSlider rangeSlider;
     private RangeSlider rangeSlider2;
@@ -214,6 +218,44 @@ public class Controller {
             mapHeatmapToggle.setSelected(true);
             toggleMapHeatmap();
         }
+
+        populateRecentDatasetsMenu();
+    }
+
+    /** Builds the SplitMenuButton dropdown: recent datasets (excluding the current one), then a "Sample" reset entry. */
+    private void populateRecentDatasetsMenu() {
+        openDatasetButton.getItems().clear();
+
+        java.io.File current = MemoryLoader.getLastSourceFile();
+        String currentAbs = (current != null) ? current.getAbsolutePath() : null;
+
+        for (java.io.File f : MemoryLoader.getRecentDatasets()) {
+            if (currentAbs != null && f.getAbsolutePath().equals(currentAbs)) continue;
+            MenuItem item = new MenuItem(truncate(f.getName(), 40));
+            item.setMnemonicParsing(false); // Underscores in filenames are literal, not Alt-shortcuts.
+            item.setOnAction(e -> Main.loadDataset((Stage) mainPane.getScene().getWindow(), f));
+            openDatasetButton.getItems().add(item);
+        }
+
+        if (!openDatasetButton.getItems().isEmpty()) {
+            openDatasetButton.getItems().add(new SeparatorMenuItem());
+        }
+
+        MenuItem sampleItem = new MenuItem("Sample dataset");
+        sampleItem.setMnemonicParsing(false);
+        sampleItem.setOnAction(e -> Main.loadBundledSample((Stage) mainPane.getScene().getWindow()));
+        openDatasetButton.getItems().add(sampleItem);
+    }
+
+    /** Caps a filename at {@code max} characters, preserving the extension when present so the cap looks like {@code prefix….ext}. */
+    private static String truncate(String name, int max) {
+        if (name == null || name.length() <= max) return name;
+        int dot = name.lastIndexOf('.');
+        int extLen = (dot > 0) ? name.length() - dot : -1;
+        if (extLen > 0 && extLen <= 8 && (max - extLen - 1) >= 5) {
+            return name.substring(0, max - extLen - 1) + "…" + name.substring(dot);
+        }
+        return name.substring(0, max - 1) + "…";
     }
 
     private void buildMap() {
