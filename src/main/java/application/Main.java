@@ -58,6 +58,7 @@ public class Main extends Application {
         javafx.concurrent.Task<Integer> task = MemoryLoader.loadAsync(selectedFile);
         task.setOnSucceeded(e -> {
             System.out.println("Loaded " + task.getValue() + " flights.");
+            MemoryLoader.saveLastDatasetPath(selectedFile);
             reloadMainScene(stage);
         });
         task.setOnFailed(e -> {

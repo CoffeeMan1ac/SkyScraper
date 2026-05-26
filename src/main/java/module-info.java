@@ -4,6 +4,7 @@ module HelloSceneBuilder {
 	requires javafx.fxml;
 	requires javafx.base;
 	requires java.sql;
+	requires java.prefs;
 	requires com.opencsv;
 	requires org.controlsfx.controls;
 	requires com.google.gson;

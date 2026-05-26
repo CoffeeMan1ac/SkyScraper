@@ -120,7 +120,7 @@ public class Controller {
     
     @FXML
     public void initialize() {
-        MemoryLoader.importCSVToMemory();
+        MemoryLoader.importCSVOnStartup();
 
         Platform.runLater(() -> {
             Stage stage = (Stage) mainPane.getScene().getWindow();
