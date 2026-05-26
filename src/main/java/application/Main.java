@@ -5,10 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import java.io.File;
@@ -26,12 +30,50 @@ public class Main extends Application {
             AnchorPane mainContent = FXMLLoader.load(getClass().getResource("/Main.fxml"));
             shell.setCenter(mainContent);
 
-            Scene scene = new Scene(shell, 1200, 800);
+            // Drop overlay sits over the shell so it stays in place across
+            // scene swaps (Main ⇄ Graphs/Results).
+            StackPane dragOverlay = new StackPane();
+            dragOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.55);");
+            Label dropLabel = new Label("Drop dataset here");
+            dropLabel.setStyle("-fx-text-fill: white; -fx-font-size: 36px; -fx-font-weight: bold;");
+            dragOverlay.getChildren().add(dropLabel);
+            dragOverlay.setVisible(false);
+            dragOverlay.setMouseTransparent(true);
+
+            StackPane root = new StackPane(shell, dragOverlay);
+
+            Scene scene = new Scene(root, 1200, 800);
             scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 
             scene.getAccelerators().put(
                     KeyCombination.keyCombination("Shortcut+O"),
                     () -> onOpenDataset(primaryStage));
+
+            scene.setOnDragOver(e -> {
+                if (e.getDragboard().hasFiles()) {
+                    e.acceptTransferModes(TransferMode.COPY);
+                }
+                e.consume();
+            });
+            scene.setOnDragEntered(e -> {
+                if (e.getDragboard().hasFiles()) dragOverlay.setVisible(true);
+                e.consume();
+            });
+            scene.setOnDragExited(e -> {
+                dragOverlay.setVisible(false);
+                e.consume();
+            });
+            scene.setOnDragDropped(e -> {
+                Dragboard db = e.getDragboard();
+                boolean accepted = false;
+                if (db.hasFiles() && !db.getFiles().isEmpty()) {
+                    loadDataset(primaryStage, db.getFiles().get(0));
+                    accepted = true;
+                }
+                dragOverlay.setVisible(false);
+                e.setDropCompleted(accepted);
+                e.consume();
+            });
 
             Image icon = new Image("logo.png");
             primaryStage.getIcons().add(icon);
@@ -103,10 +145,8 @@ public class Main extends Application {
     private static void reloadMainScene(Stage stage) {
         try {
             Parent newRoot = FXMLLoader.load(Main.class.getResource("/Main.fxml"));
-            Scene s = stage.getScene();
-            if (s != null && s.getRoot() instanceof BorderPane) {
-                ((BorderPane) s.getRoot()).setCenter(newRoot);
-            }
+            BorderPane shell = findShell(stage.getScene());
+            if (shell != null) shell.setCenter(newRoot);
         } catch (java.io.IOException ex) {
             ex.printStackTrace();
         }
@@ -117,11 +157,25 @@ public class Main extends Application {
         if (anyNodeInScene == null || newCenter == null) return;
         Scene s = anyNodeInScene.getScene();
         if (s == null) return;
-        if (s.getRoot() instanceof BorderPane) {
-            ((BorderPane) s.getRoot()).setCenter(newCenter);
+        BorderPane shell = findShell(s);
+        if (shell != null) {
+            shell.setCenter(newCenter);
         } else {
             s.setRoot(newCenter);
         }
+    }
+
+    /** Returns the BorderPane shell, whether it's the scene root or a child of the StackPane root that hosts the drag overlay. */
+    private static BorderPane findShell(Scene s) {
+        if (s == null) return null;
+        Parent root = s.getRoot();
+        if (root instanceof BorderPane) return (BorderPane) root;
+        if (root instanceof StackPane) {
+            for (Node n : ((StackPane) root).getChildren()) {
+                if (n instanceof BorderPane) return (BorderPane) n;
+            }
+        }
+        return null;
     }
 
     public static void main(String[] args) {
