@@ -124,7 +124,10 @@ public class Controller {
 
         Platform.runLater(() -> {
             Stage stage = (Stage) mainPane.getScene().getWindow();
-            stage.setTitle("SkyScraper — " + MemoryLoader.getAllFlights().size() + " flights");
+            int n = MemoryLoader.getAllFlights().size();
+            java.io.File src = MemoryLoader.getLastSourceFile();
+            String suffix = (src != null) ? " · " + src.getName() : "";
+            stage.setTitle("SkyScraper — " + n + " flights" + suffix);
         });
 
         Set<String> uniqueCities = MemoryLoader.getAllFlights().stream()

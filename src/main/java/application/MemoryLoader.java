@@ -1,5 +1,6 @@
 package application;
 
+import java.io.File;
 import java.io.FileReader;
 import java.util.*;
 import java.util.logging.Level;
@@ -7,6 +8,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.opencsv.CSVReader;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 
 public class MemoryLoader {
     private static final String CSV_PATH = "flights_sample.csv";
@@ -14,6 +17,7 @@ public class MemoryLoader {
 
     private static final List<Flight> allFlights = new ArrayList<>();
     private static boolean dataLoaded = false;
+    private static File lastSourceFile;
 
     private static ArrayList<String> destArray = new ArrayList<>();
     private static ArrayList<Integer> destCountArray = new ArrayList<>();
@@ -49,11 +53,46 @@ public class MemoryLoader {
             }
 
             dataLoaded = true;
+            lastSourceFile = new File(CSV_PATH);
             System.out.println("Loaded " + count + " flights into memory.");
 
         } catch (Exception e) {
             Logger.getLogger(MemoryLoader.class.getName()).log(Level.SEVERE, null, e);
         }
+    }
+
+    /**
+     * Async load of an arbitrary CSV. Parses on a background thread; on success
+     * the new flight list is installed on the FX thread so FX-thread readers see
+     * a consistent snapshot. Caller wires task.setOnSucceeded / setOnFailed.
+     */
+    public static Task<Integer> loadAsync(File csvFile) {
+        return new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception {
+                List<Flight> loaded = new ArrayList<>();
+                try (CSVReader reader = new CSVReader(new FileReader(csvFile))) {
+                    reader.readNext(); // skip header
+                    String[] row;
+                    while ((row = reader.readNext()) != null) {
+                        loaded.add(new Flight(row));
+                    }
+                }
+                Platform.runLater(() -> {
+                    allFlights.clear();
+                    allFlights.addAll(loaded);
+                    destArray.clear();
+                    destCountArray.clear();
+                    dataLoaded = true;
+                    lastSourceFile = csvFile;
+                });
+                return loaded.size();
+            }
+        };
+    }
+
+    public static File getLastSourceFile() {
+        return lastSourceFile;
     }
     // Destination counts for each destination
     public static void queryCityDestCounts(String cityName) {
