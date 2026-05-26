@@ -41,7 +41,11 @@ public final class TopoJsonStates {
             Map.entry("44", "RI"), Map.entry("45", "SC"), Map.entry("46", "SD"),
             Map.entry("47", "TN"), Map.entry("48", "TX"), Map.entry("49", "UT"),
             Map.entry("50", "VT"), Map.entry("51", "VA"), Map.entry("53", "WA"),
-            Map.entry("54", "WV"), Map.entry("55", "WI"), Map.entry("56", "WY"));
+            Map.entry("54", "WV"), Map.entry("55", "WI"), Map.entry("56", "WY"),
+            // US territories. Each has a matching inset in AlbersUsa
+            // (VI rides on PR's Conic since they're geographically adjacent).
+            Map.entry("60", "AS"), Map.entry("66", "GU"), Map.entry("69", "MP"),
+            Map.entry("72", "PR"), Map.entry("78", "VI"));
 
     private TopoJsonStates() {}
 

@@ -19,8 +19,10 @@ public final class AlbersUsa {
     private static final double EPS = 1e-6;
 
     private final double k, tx, ty;
-    private final ConicEqualArea lower48, alaska, hawaii;
-    private final double[] lower48Clip, alaskaClip, hawaiiClip;
+    private final ConicEqualArea lower48, alaska, hawaii, puertoRico;
+    private final EquirectangularInset americanSamoa, guam, marianas;
+    private final double[] lower48Clip, alaskaClip, hawaiiClip, puertoRicoClip,
+            americanSamoaClip, guamClip, marianasClip;
 
     public AlbersUsa(double width, double height) {
         this.k = Math.min(width / BASE_W, height / BASE_H) * BASE_K;
@@ -32,6 +34,21 @@ public final class AlbersUsa {
                 tx - 0.307 * k, ty + 0.201 * k);
         this.hawaii = new ConicEqualArea(8.0, 18.0, -3.0, 19.9, 157.0, k,
                 tx - 0.205 * k, ty + 0.212 * k);
+        // Puerto Rico inset (also covers US Virgin Islands, geographically <2° away).
+        this.puertoRico = new ConicEqualArea(8.0, 18.0, 0.0, 18.0, 66.0, k,
+                tx + 0.353 * k, ty + 0.205 * k);
+        // Pacific territories — small Equirectangular insets along the bottom
+        // between Hawaii and Puerto Rico. Tiny island groups; conic distortion
+        // would be invisible at this scale, so a simpler projection suffices.
+        this.americanSamoa = new EquirectangularInset(
+                -170.5, -14.3, k * 0.075,
+                tx - 0.080 * k, ty + 0.220 * k);
+        this.guam = new EquirectangularInset(
+                144.8, 13.5, k * 0.075,
+                tx - 0.020 * k, ty + 0.220 * k);
+        this.marianas = new EquirectangularInset(
+                145.7, 15.5, k * 0.075,
+                tx + 0.040 * k, ty + 0.220 * k);
 
         this.lower48Clip = new double[]{
                 tx - 0.455 * k, ty - 0.238 * k,
@@ -42,6 +59,18 @@ public final class AlbersUsa {
         this.hawaiiClip = new double[]{
                 tx - 0.214 * k + EPS, ty + 0.166 * k + EPS,
                 tx - 0.115 * k - EPS, ty + 0.234 * k - EPS};
+        this.puertoRicoClip = new double[]{
+                tx + 0.305 * k + EPS, ty + 0.180 * k + EPS,
+                tx + 0.410 * k - EPS, ty + 0.235 * k - EPS};
+        this.americanSamoaClip = new double[]{
+                tx - 0.105 * k + EPS, ty + 0.205 * k + EPS,
+                tx - 0.055 * k - EPS, ty + 0.235 * k - EPS};
+        this.guamClip = new double[]{
+                tx - 0.045 * k + EPS, ty + 0.205 * k + EPS,
+                tx + 0.005 * k - EPS, ty + 0.235 * k - EPS};
+        this.marianasClip = new double[]{
+                tx + 0.015 * k + EPS, ty + 0.205 * k + EPS,
+                tx + 0.065 * k - EPS, ty + 0.235 * k - EPS};
     }
 
     /** Returns [x, y] on the canvas, or null if the point lies outside every region. */
@@ -53,11 +82,42 @@ public final class AlbersUsa {
         if (inBox(xy, alaskaClip)) return xy;
         xy = hawaii.project(lngDeg, latDeg);
         if (inBox(xy, hawaiiClip)) return xy;
+        xy = puertoRico.project(lngDeg, latDeg);
+        if (inBox(xy, puertoRicoClip)) return xy;
+        xy = americanSamoa.project(lngDeg, latDeg);
+        if (inBox(xy, americanSamoaClip)) return xy;
+        xy = guam.project(lngDeg, latDeg);
+        if (inBox(xy, guamClip)) return xy;
+        xy = marianas.project(lngDeg, latDeg);
+        if (inBox(xy, marianasClip)) return xy;
         return null;
     }
 
     private static boolean inBox(double[] p, double[] box) {
         return p[0] >= box[0] && p[0] <= box[2] && p[1] >= box[1] && p[1] <= box[3];
+    }
+
+    /** Simple Equirectangular inset for tiny island groups where conic
+     *  distortion is negligible. Linear in lng/lat around a chosen centre. */
+    private static final class EquirectangularInset {
+        private final double centerLng, centerLat;
+        private final double scale;
+        private final double tx, ty;
+
+        EquirectangularInset(double centerLngDeg, double centerLatDeg,
+                             double scale, double insetTx, double insetTy) {
+            this.centerLng = centerLngDeg;
+            this.centerLat = centerLatDeg;
+            this.scale = scale;
+            this.tx = insetTx;
+            this.ty = insetTy;
+        }
+
+        double[] project(double lngDeg, double latDeg) {
+            double dx = (lngDeg - centerLng) * scale;
+            double dy = (centerLat - latDeg) * scale; // screen y goes down
+            return new double[]{tx + dx, ty + dy};
+        }
     }
 
     /** Single regional Albers equal-area conic projection. */

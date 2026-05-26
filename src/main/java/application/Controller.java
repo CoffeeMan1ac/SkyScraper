@@ -288,7 +288,17 @@ public class Controller {
                     continue;
                 }
                 String city = row[3];
-                String state = row[4].startsWith("US-") ? row[4].substring(3) : row[4];
+                // OurAirports iso_region is "US-CA" for states; territories use
+                // "PR-U-A" / "VI-U-A" / etc. Reduce both to the 2-letter code.
+                String region = row[4];
+                String state;
+                if (region.startsWith("US-")) {
+                    state = region.substring(3);
+                } else if (region.contains("-")) {
+                    state = region.substring(0, region.indexOf('-'));
+                } else {
+                    state = region;
+                }
 
                 double[] xy = projection.project(lng, lat);
                 if (xy == null) continue;
