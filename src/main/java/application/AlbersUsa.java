@@ -37,18 +37,19 @@ public final class AlbersUsa {
         // Puerto Rico inset (also covers US Virgin Islands, geographically <2° away).
         this.puertoRico = new ConicEqualArea(8.0, 18.0, 0.0, 18.0, 66.0, k,
                 tx + 0.353 * k, ty + 0.205 * k);
-        // Pacific territories — small Equirectangular insets along the bottom
-        // between Hawaii and Puerto Rico. Tiny island groups; conic distortion
-        // would be invisible at this scale, so a simpler projection suffices.
+        // Pacific territories — small Equirectangular insets in the strip
+        // below the lower48 clip box. Placing them inside the lower48 panel
+        // (the previous y=+0.220k) made them collide with south-Gulf-coast
+        // dots: Guam landed on Brownsville TX, AS/MP on the Louisiana coast.
         this.americanSamoa = new EquirectangularInset(
                 -170.5, -14.3, k * 0.075,
-                tx - 0.080 * k, ty + 0.220 * k);
+                tx - 0.080 * k, ty + 0.255 * k);
         this.guam = new EquirectangularInset(
                 144.8, 13.5, k * 0.075,
-                tx - 0.020 * k, ty + 0.220 * k);
+                tx - 0.020 * k, ty + 0.255 * k);
         this.marianas = new EquirectangularInset(
                 145.7, 15.5, k * 0.075,
-                tx + 0.040 * k, ty + 0.220 * k);
+                tx + 0.040 * k, ty + 0.255 * k);
 
         this.lower48Clip = new double[]{
                 tx - 0.455 * k, ty - 0.238 * k,
@@ -63,14 +64,14 @@ public final class AlbersUsa {
                 tx + 0.305 * k + EPS, ty + 0.180 * k + EPS,
                 tx + 0.410 * k - EPS, ty + 0.235 * k - EPS};
         this.americanSamoaClip = new double[]{
-                tx - 0.105 * k + EPS, ty + 0.205 * k + EPS,
-                tx - 0.055 * k - EPS, ty + 0.235 * k - EPS};
+                tx - 0.105 * k + EPS, ty + 0.240 * k + EPS,
+                tx - 0.055 * k - EPS, ty + 0.270 * k - EPS};
         this.guamClip = new double[]{
-                tx - 0.045 * k + EPS, ty + 0.205 * k + EPS,
-                tx + 0.005 * k - EPS, ty + 0.235 * k - EPS};
+                tx - 0.045 * k + EPS, ty + 0.240 * k + EPS,
+                tx + 0.005 * k - EPS, ty + 0.270 * k - EPS};
         this.marianasClip = new double[]{
-                tx + 0.015 * k + EPS, ty + 0.205 * k + EPS,
-                tx + 0.065 * k - EPS, ty + 0.235 * k - EPS};
+                tx + 0.015 * k + EPS, ty + 0.240 * k + EPS,
+                tx + 0.065 * k - EPS, ty + 0.270 * k - EPS};
     }
 
     /** Returns [x, y] on the canvas, or null if the point lies outside every region. */
