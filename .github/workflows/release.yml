@@ -36,10 +36,15 @@ jobs:
         shell: bash
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+            VERSION="${GITHUB_REF#refs/tags/v}"
           else
-            echo "version=1.0.0" >> "$GITHUB_OUTPUT"
+            VERSION="1.0.0"
           fi
+          # macOS bundles require major >= 1; substitute for v0.x.y tags.
+          if [[ "$RUNNER_OS" == "macOS" && "$VERSION" == 0.* ]]; then
+            VERSION="1.0.0"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build jar + stage dependencies
         shell: bash
