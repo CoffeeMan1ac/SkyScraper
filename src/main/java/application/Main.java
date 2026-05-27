@@ -60,9 +60,13 @@ public class Main extends Application {
                     KeyCombination.keyCombination("Shortcut+O"),
                     () -> onOpenDataset(primaryStage));
 
-            // Esc dispatch — bubble-phase handler so widgets that consume Esc
-            // internally (DatePicker popup, etc.) take priority.
-            scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            // Esc dispatch — capture-phase filter so it fires even when the
+            // focus owner is orphaned (e.g. after a swapCenter removes the
+            // previously focused node). Widgets that consume Esc and live in
+            // their own Stage (DatePicker popup, ControlsFX PopOver, the
+            // autocomplete Popup) aren't affected — their key events never
+            // reach this main-scene filter.
+            scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
                 if (e.getCode() == KeyCode.ESCAPE && currentEscHandler != null) {
                     currentEscHandler.run();
                     e.consume();
