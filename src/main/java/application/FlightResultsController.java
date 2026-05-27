@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 
 import java.io.IOException;
@@ -43,6 +44,32 @@ public class FlightResultsController {
         colArrTime.setCellValueFactory(new PropertyValueFactory<>("crsArrTime"));
         colCancelled.setCellValueFactory(new PropertyValueFactory<>("cancelled"));
         colDiverted.setCellValueFactory(new PropertyValueFactory<>("diverted"));
+
+        flightsTable.setRowFactory(tv -> {
+            TableRow<Flight> row = new TableRow<>();
+            row.setOnMouseClicked(e -> {
+                if (!row.isEmpty()) showFlightDetails(row.getItem());
+            });
+            return row;
+        });
+    }
+
+    /** Swaps the BorderPane centre to a freshly-loaded FlightDetails panel and
+     *  installs an onClose that restores the *same* results node we left —
+     *  so pagination, scroll, and selection survive the round-trip. */
+    private void showFlightDetails(Flight f) {
+        Parent currentResults = Main.getShellCenter(flightsTable);
+        if (currentResults == null) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));
+            Parent detailsRoot = loader.load();
+            FlightDetailsController dc = loader.getController();
+            dc.setFlight(f);
+            dc.setOnClose(() -> Main.swapCenter(detailsRoot, currentResults));
+            Main.swapCenter(flightsTable, detailsRoot);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
     
     private List<Flight> allQueryResults = new ArrayList<>();

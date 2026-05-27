@@ -169,6 +169,19 @@ public class Main extends Application {
         }
     }
 
+    /** Returns the current centre node of the shell — used by callers that
+     *  want to swap something in and then restore the previous centre later
+     *  (e.g. Results → Details → back to the same table). */
+    public static Parent getShellCenter(Node anyNodeInScene) {
+        if (anyNodeInScene == null) return null;
+        Scene s = anyNodeInScene.getScene();
+        if (s == null) return null;
+        BorderPane shell = findShell(s);
+        if (shell == null) return null;
+        Node c = shell.getCenter();
+        return (c instanceof Parent) ? (Parent) c : null;
+    }
+
     /** Returns the BorderPane shell, whether it's the scene root or a child of the StackPane root that hosts the drag overlay. */
     private static BorderPane findShell(Scene s) {
         if (s == null) return null;
