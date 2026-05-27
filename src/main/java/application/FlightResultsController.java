@@ -53,8 +53,13 @@ public class FlightResultsController {
             return row;
         });
 
+        previousEsc = Main.getEscHandler();
         Main.setEscHandler(this::handleBack);
     }
+
+    /** Esc handler that was in effect when this controller took over —
+     *  restored on back so the scene we return to has its own Esc behaviour. */
+    private Runnable previousEsc;
 
     /** Same action as the Back button — used by both the FXML handler and the
      *  scene-wide Esc binding. */
@@ -62,6 +67,7 @@ public class FlightResultsController {
         try {
             if (backTarget != null) {
                 Main.swapCenter(flightsTable, backTarget);
+                if (previousEsc != null) Main.setEscHandler(previousEsc);
                 return;
             }
             Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
