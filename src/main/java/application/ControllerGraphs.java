@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 
+import javafx.collections.FXCollections;
+import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -14,6 +16,8 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ControllerGraphs {
 
@@ -21,9 +25,14 @@ public class ControllerGraphs {
     @FXML BarChart<Number, String> barChart;
     @FXML Label debugLabel;
     @FXML javafx.scene.control.ScrollPane graphScrollPane;
-    
+
+    /** Origin city that produced this chart. Saved so a bar click can drill in
+     *  to the table of flights for the origin→destination pair. */
+    private String originCity;
+
     // Load and display destination counts per user selected origin city
     public void displayInput(String cityName) {
+        this.originCity = cityName;
         sqlLabel.setText("Origin city: " + cityName);
 
         Task<Void> dbTask = new Task<>() {
@@ -139,9 +148,11 @@ public class ControllerGraphs {
                     Node bar = d.getNode();
                     if (bar != null) {
                         javafx.scene.control.Tooltip t =
-                                new javafx.scene.control.Tooltip(d.getYValue() + " — " + d.getXValue() + " flights");
+                                new javafx.scene.control.Tooltip(d.getYValue() + " — " + d.getXValue() + " flights · click to view");
                         t.setShowDelay(javafx.util.Duration.millis(60));
                         javafx.scene.control.Tooltip.install(bar, t);
+                        bar.setCursor(Cursor.HAND);
+                        bar.setOnMouseClicked(e -> openResultsForDestination(d.getYValue()));
                     }
                 };
                 if (d.getNode() != null) {
@@ -161,6 +172,24 @@ public class ControllerGraphs {
         };
 
         new Thread(dbTask).start();
+    }
+
+    /** Swaps to a results table containing every flight on the
+     *  originCity → destCity pair. Same table as the main-search results. */
+    private void openResultsForDestination(String destCity) {
+        if (originCity == null || destCity == null) return;
+        List<Flight> matches = MemoryLoader.getAllFlights().stream()
+                .filter(f -> originCity.equals(f.originCity) && destCity.equals(f.destCity))
+                .collect(Collectors.toList());
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightResults.fxml"));
+            Parent root = loader.load();
+            FlightResultsController controller = loader.getController();
+            controller.setFlights(FXCollections.observableArrayList(matches));
+            Main.swapCenter(barChart, root);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     // Scene switching
