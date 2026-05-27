@@ -754,10 +754,12 @@ public class Controller {
         String selectedCity = cityComboBox.getEditor().getText();
         if (selectedCity == null || selectedCity.isEmpty()) return;
 
+        Parent currentMain = Main.getShellCenter((Node) event.getSource());
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/GraphsScene.fxml"));
         Parent newRoot = loader.load();
 
         ControllerGraphs controllerGraphs = loader.getController();
+        if (currentMain != null) controllerGraphs.setBackTarget(currentMain);
         controllerGraphs.displayInput(selectedCity);
 
         Main.swapCenter((Node) event.getSource(), newRoot);
@@ -767,10 +769,12 @@ public class Controller {
         String selectedCity = cityComboBox.getEditor().getText();
         if (selectedCity == null || selectedCity.isEmpty()) return;
 
+        Parent currentMain = Main.getShellCenter(cityComboBox);
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/GraphsScene.fxml"));
         Parent newRoot = loader.load();
 
         ControllerGraphs controllerGraphs = loader.getController();
+        if (currentMain != null) controllerGraphs.setBackTarget(currentMain);
         controllerGraphs.displayInput(selectedCity);
 
         Main.swapCenter(cityComboBox, newRoot);

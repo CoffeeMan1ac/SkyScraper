@@ -30,15 +30,38 @@ public class ControllerGraphs {
      *  to the table of flights for the origin→destination pair. */
     private String originCity;
 
+    /** Cached main scene to swap back into instead of reloading Main.fxml —
+     *  reloading triggers Controller.initialize → buildMap, which rebuilds
+     *  ~300 airport circles and runs an O(n²) overlap-relaxation. Set by the
+     *  caller before this controller's UI is shown. */
+    private Parent backTarget;
+    /** Esc handler that was in effect before we took over — restored on back
+     *  so Esc on the returned-to scene behaves correctly. */
+    private Runnable previousEsc;
+
+    public void setBackTarget(Parent backTarget) {
+        this.backTarget = backTarget;
+    }
+
     @FXML
     public void initialize() {
+        previousEsc = Main.getEscHandler();
         Main.setEscHandler(this::escapeToMain);
     }
 
     private void escapeToMain() {
+        goBack(barChart);
+    }
+
+    private void goBack(Node sourceForSwap) {
+        if (backTarget != null) {
+            Main.swapCenter(sourceForSwap, backTarget);
+            if (previousEsc != null) Main.setEscHandler(previousEsc);
+            return;
+        }
         try {
             Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-            Main.swapCenter(barChart, newRoot);
+            Main.swapCenter(sourceForSwap, newRoot);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -213,7 +236,6 @@ public class ControllerGraphs {
 
     // Scene switching
     public void switchToMain(ActionEvent event) throws IOException {
-        Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        Main.swapCenter((Node) event.getSource(), newRoot);
+        goBack((Node) event.getSource());
     }
 }
