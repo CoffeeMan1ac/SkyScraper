@@ -20,7 +20,7 @@
                 <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
             </padding>
             <HBox alignment="CENTER_LEFT" spacing="10.0">
-                <Button mnemonicParsing="false" onAction="#switchToMain" text="Main menu" />
+                <Button mnemonicParsing="false" onAction="#switchToMain" text="Back" />
             </HBox>
             <Text fill="WHITE" opacity="0.85" stroke="BLACK" strokeWidth="0.4" text="SkyScraper">
                 <font>
