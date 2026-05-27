@@ -23,6 +23,48 @@ public class MemoryLoader {
     private static final List<Flight> allFlights = new ArrayList<>();
     private static boolean dataLoaded = false;
     private static File lastSourceFile;
+    private static DatasetStats stats = DatasetStats.EMPTY;
+
+    /**
+     * One-shot scan over the loaded dataset for "is this field even meaningful?"
+     * signals — e.g. BTS exports stamp every FL_DATE with a constant ` 00:00`
+     * tail because the source schema reserves room for a time-of-day that's
+     * never populated. Computed once per load, read by the details panel to
+     * decide whether to hide redundant fields.
+     */
+    public static final class DatasetStats {
+        static final DatasetStats EMPTY = new DatasetStats(false, null);
+
+        /** True when the time-of-day portion of FL_DATE is identical across every row (so it carries no information). */
+        public final boolean dateHasNoTimeOfDay;
+        /** The constant time-tail when {@link #dateHasNoTimeOfDay} is true (e.g. "00:00" or ""). */
+        public final String constantDateTimeTail;
+
+        DatasetStats(boolean dateHasNoTimeOfDay, String constantDateTimeTail) {
+            this.dateHasNoTimeOfDay = dateHasNoTimeOfDay;
+            this.constantDateTimeTail = constantDateTimeTail;
+        }
+
+        static DatasetStats compute(List<Flight> flights) {
+            if (flights.isEmpty()) return EMPTY;
+            String firstTail = extractDateTail(flights.get(0).flDate);
+            for (int i = 1; i < flights.size(); i++) {
+                String tail = extractDateTail(flights.get(i).flDate);
+                if (!Objects.equals(firstTail, tail)) {
+                    return new DatasetStats(false, null);
+                }
+            }
+            return new DatasetStats(true, firstTail);
+        }
+
+        private static String extractDateTail(String flDate) {
+            if (flDate == null) return null;
+            int sp = flDate.indexOf(' ');
+            return sp >= 0 ? flDate.substring(sp + 1).trim() : "";
+        }
+    }
+
+    public static DatasetStats getStats() { return stats; }
 
     private static ArrayList<String> destArray = new ArrayList<>();
     private static ArrayList<Integer> destCountArray = new ArrayList<>();
@@ -59,6 +101,7 @@ public class MemoryLoader {
 
             dataLoaded = true;
             lastSourceFile = new File(CSV_PATH);
+            stats = DatasetStats.compute(allFlights);
             System.out.println("Loaded " + count + " flights into memory.");
 
         } catch (Exception e) {
@@ -90,6 +133,7 @@ public class MemoryLoader {
                     destCountArray.clear();
                     dataLoaded = true;
                     lastSourceFile = csvFile;
+                    stats = DatasetStats.compute(allFlights);
                 });
                 return loaded.size();
             }
@@ -136,6 +180,7 @@ public class MemoryLoader {
         destCountArray.clear();
         dataLoaded = true;
         lastSourceFile = csvFile;
+        stats = DatasetStats.compute(allFlights);
         System.out.println("Loaded " + loaded.size() + " flights from " + csvFile.getName());
     }
 

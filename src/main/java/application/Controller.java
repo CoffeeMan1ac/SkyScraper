@@ -153,6 +153,10 @@ public class Controller {
         // approaches reach it on modular Java.
         setupFlightAutocomplete();
 
+        // FlightDetails.fxml no longer carries visible="false" (so it can also
+        // be loaded standalone for the results-row drill-in). Hide it here for
+        // the embedded Main path; showFlightDetails flips it on.
+        flightDetails.setVisible(false);
         flightDetailsController.setOnClose(this::hideFlightDetails);
         	
         // Set dropdown values
