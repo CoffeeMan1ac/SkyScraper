@@ -33,28 +33,41 @@ public class MemoryLoader {
      * decide whether to hide redundant fields.
      */
     public static final class DatasetStats {
-        static final DatasetStats EMPTY = new DatasetStats(false, null);
+        static final DatasetStats EMPTY = new DatasetStats(false, null, null, null);
 
         /** True when the time-of-day portion of FL_DATE is identical across every row (so it carries no information). */
         public final boolean dateHasNoTimeOfDay;
         /** The constant time-tail when {@link #dateHasNoTimeOfDay} is true (e.g. "00:00" or ""). */
         public final String constantDateTimeTail;
+        /** Earliest FL_DATE seen, or null if none parsed. Used to seed the date-filter UI. */
+        public final java.time.LocalDate minDate;
+        /** Latest FL_DATE seen, or null if none parsed. */
+        public final java.time.LocalDate maxDate;
 
-        DatasetStats(boolean dateHasNoTimeOfDay, String constantDateTimeTail) {
+        DatasetStats(boolean dateHasNoTimeOfDay, String constantDateTimeTail,
+                     java.time.LocalDate minDate, java.time.LocalDate maxDate) {
             this.dateHasNoTimeOfDay = dateHasNoTimeOfDay;
             this.constantDateTimeTail = constantDateTimeTail;
+            this.minDate = minDate;
+            this.maxDate = maxDate;
         }
 
         static DatasetStats compute(List<Flight> flights) {
             if (flights.isEmpty()) return EMPTY;
             String firstTail = extractDateTail(flights.get(0).flDate);
-            for (int i = 1; i < flights.size(); i++) {
-                String tail = extractDateTail(flights.get(i).flDate);
-                if (!Objects.equals(firstTail, tail)) {
-                    return new DatasetStats(false, null);
+            boolean tailConstant = true;
+            java.time.LocalDate min = null, max = null;
+            for (Flight f : flights) {
+                String tail = extractDateTail(f.flDate);
+                if (tailConstant && !Objects.equals(firstTail, tail)) tailConstant = false;
+
+                java.time.LocalDate d = f.parsedDate();
+                if (d != null) {
+                    if (min == null || d.isBefore(min)) min = d;
+                    if (max == null || d.isAfter(max)) max = d;
                 }
             }
-            return new DatasetStats(true, firstTail);
+            return new DatasetStats(tailConstant, tailConstant ? firstTail : null, min, max);
         }
 
         private static String extractDateTail(String flDate) {

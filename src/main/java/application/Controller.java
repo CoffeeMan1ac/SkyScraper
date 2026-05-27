@@ -29,6 +29,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
@@ -58,6 +59,7 @@ public class Controller {
     @FXML private ComboBox<String> carrierComboBox;
     @FXML private ComboBox<String> originCityComboBox;
     @FXML private ComboBox<String> destinationCityComboBox;
+    @FXML private Button dateButton;
     @FXML private Button timeButton;
     @FXML private CheckBox option1;
     @FXML private CheckBox option2;
@@ -66,6 +68,9 @@ public class Controller {
     private RangeSlider rangeSlider;
     private RangeSlider rangeSlider2;
     private PopOver timePopOver;
+    private DatePicker datePickerFrom;
+    private DatePicker datePickerTo;
+    private PopOver datePopOver;
     @FXML ComboBox<String> flightSearchBox;
     @FXML TextField flightSearchField;
     @FXML TextField flightNumberField;
@@ -199,7 +204,34 @@ public class Controller {
         rangeSlider.highValueChangingProperty().addListener(onDragEnd);
         rangeSlider2.lowValueChangingProperty().addListener(onDragEnd);
         rangeSlider2.highValueChangingProperty().addListener(onDragEnd);
-        
+
+        // Date filter — popover with from/to DatePickers. Prompt text seeded
+        // from the dataset's min/max so the user sees the available span.
+        datePickerFrom = new DatePicker();
+        datePickerTo = new DatePicker();
+        MemoryLoader.DatasetStats dStats = MemoryLoader.getStats();
+        if (dStats.minDate != null) datePickerFrom.setPromptText(dStats.minDate.toString());
+        if (dStats.maxDate != null) datePickerTo.setPromptText(dStats.maxDate.toString());
+
+        Button resetDateButton = new Button("Reset");
+        resetDateButton.setOnAction(e -> {
+            datePickerFrom.setValue(null);
+            datePickerTo.setValue(null);
+            updateDateButtonLabel();
+        });
+
+        VBox dateContent = new VBox(10,
+                new Label("From"), datePickerFrom,
+                new Label("To"), datePickerTo,
+                resetDateButton);
+        dateContent.setPadding(new Insets(15));
+        datePopOver = new PopOver(dateContent);
+        datePopOver.setArrowLocation(PopOver.ArrowLocation.TOP_CENTER);
+        datePopOver.setDetachable(false);
+
+        datePickerFrom.valueProperty().addListener((obs, o, n) -> updateDateButtonLabel());
+        datePickerTo.valueProperty().addListener((obs, o, n) -> updateDateButtonLabel());
+
         buildMap();
         dotSearchField.textProperty().addListener((obs, oldV, newV) -> applyDotSearch(newV));
 
@@ -619,6 +651,10 @@ public class Controller {
         boolean showCancelled = option1.isSelected();
         boolean showDiverted = option2.isSelected();
 
+        java.time.LocalDate dateFrom = datePickerFrom.getValue();
+        java.time.LocalDate dateTo = datePickerTo.getValue();
+        boolean dateFilterActive = dateFrom != null || dateTo != null;
+
         // Full custom search
         ObservableList<Flight> filteredFlights = FXCollections.observableArrayList(
             MemoryLoader.getAllFlights().stream()
@@ -636,7 +672,15 @@ public class Controller {
                     boolean matchCancelled = !showCancelled || f.isCancelled();
                     boolean matchDiverted = !showDiverted || f.isDiverted();
 
-                    return matchDep && matchArr && matchCarrier && matchOrigin && matchDest && matchCancelled && matchDiverted;
+                    boolean matchDate = true;
+                    if (dateFilterActive) {
+                        java.time.LocalDate d = f.parsedDate();
+                        if (d == null) matchDate = false;
+                        else if (dateFrom != null && d.isBefore(dateFrom)) matchDate = false;
+                        else if (dateTo != null && d.isAfter(dateTo)) matchDate = false;
+                    }
+
+                    return matchDep && matchArr && matchCarrier && matchOrigin && matchDest && matchCancelled && matchDiverted && matchDate;
                 })
                 .collect(Collectors.toList())
         );
@@ -736,6 +780,23 @@ public class Controller {
     @FXML
     public void openTimePopover() {
         timePopOver.show(timeButton);
+    }
+
+    @FXML
+    public void openDatePopover() {
+        datePopOver.show(dateButton);
+    }
+
+    private void updateDateButtonLabel() {
+        java.time.LocalDate from = datePickerFrom.getValue();
+        java.time.LocalDate to = datePickerTo.getValue();
+        if (from == null && to == null) {
+            dateButton.setText("Date");
+            return;
+        }
+        String fs = from != null ? from.toString() : "…";
+        String ts = to != null ? to.toString() : "…";
+        dateButton.setText(fs + " – " + ts);
     }
 
     @FXML

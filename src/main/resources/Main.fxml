@@ -50,6 +50,7 @@
             <ComboBox fx:id="carrierComboBox" prefWidth="140.0" promptText="Carrier" />
             <ComboBox fx:id="originCityComboBox" prefWidth="180.0" promptText="Origin" />
             <ComboBox fx:id="destinationCityComboBox" prefWidth="180.0" promptText="Destination" />
+            <Button fx:id="dateButton" mnemonicParsing="false" onAction="#openDatePopover" prefWidth="180.0" text="Date" />
             <Button fx:id="timeButton" mnemonicParsing="false" onAction="#openTimePopover" prefWidth="180.0" text="Time" />
             <CheckBox fx:id="option1" text="Cancelled" />
             <CheckBox fx:id="option2" text="Diverted" />
