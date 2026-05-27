@@ -206,17 +206,42 @@ public class Controller {
         rangeSlider2.highValueChangingProperty().addListener(onDragEnd);
 
         // Date filter — popover with from/to DatePickers. Prompt text seeded
-        // from the dataset's min/max so the user sees the available span.
+        // from the dataset's min/max so the user sees the available span;
+        // dayCellFactory disables out-of-range cells (standard JavaFX idiom).
         datePickerFrom = new DatePicker();
         datePickerTo = new DatePicker();
         MemoryLoader.DatasetStats dStats = MemoryLoader.getStats();
         if (dStats.minDate != null) datePickerFrom.setPromptText(dStats.minDate.toString());
         if (dStats.maxDate != null) datePickerTo.setPromptText(dStats.maxDate.toString());
+        if (dStats.minDate != null || dStats.maxDate != null) {
+            javafx.util.Callback<DatePicker, javafx.scene.control.DateCell> cellFactory = picker ->
+                    new javafx.scene.control.DateCell() {
+                        @Override
+                        public void updateItem(java.time.LocalDate item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (item == null || empty) return;
+                            boolean tooEarly = dStats.minDate != null && item.isBefore(dStats.minDate);
+                            boolean tooLate = dStats.maxDate != null && item.isAfter(dStats.maxDate);
+                            if (tooEarly || tooLate) {
+                                setDisable(true);
+                                setStyle("-fx-background-color: #e0e0e0;");
+                            }
+                        }
+                    };
+            datePickerFrom.setDayCellFactory(cellFactory);
+            datePickerTo.setDayCellFactory(cellFactory);
+        }
+
+        // Open the picker on the dataset's range, not on "today" — saves the
+        // user from paging back years through months they can't pick anyway.
+        // Equal-to-range counts as "no filter" downstream.
+        datePickerFrom.setValue(dStats.minDate);
+        datePickerTo.setValue(dStats.maxDate);
 
         Button resetDateButton = new Button("Reset");
         resetDateButton.setOnAction(e -> {
-            datePickerFrom.setValue(null);
-            datePickerTo.setValue(null);
+            datePickerFrom.setValue(dStats.minDate);
+            datePickerTo.setValue(dStats.maxDate);
             updateDateButtonLabel();
         });
 
@@ -653,7 +678,10 @@ public class Controller {
 
         java.time.LocalDate dateFrom = datePickerFrom.getValue();
         java.time.LocalDate dateTo = datePickerTo.getValue();
-        boolean dateFilterActive = dateFrom != null || dateTo != null;
+        MemoryLoader.DatasetStats datasetStats = MemoryLoader.getStats();
+        boolean atFullRange = java.util.Objects.equals(dateFrom, datasetStats.minDate)
+                           && java.util.Objects.equals(dateTo, datasetStats.maxDate);
+        boolean dateFilterActive = (dateFrom != null || dateTo != null) && !atFullRange;
 
         // Full custom search
         ObservableList<Flight> filteredFlights = FXCollections.observableArrayList(
@@ -790,7 +818,10 @@ public class Controller {
     private void updateDateButtonLabel() {
         java.time.LocalDate from = datePickerFrom.getValue();
         java.time.LocalDate to = datePickerTo.getValue();
-        if (from == null && to == null) {
+        MemoryLoader.DatasetStats s = MemoryLoader.getStats();
+        boolean atFullRange = java.util.Objects.equals(from, s.minDate)
+                           && java.util.Objects.equals(to, s.maxDate);
+        if ((from == null && to == null) || atFullRange) {
             dateButton.setText("Date");
             return;
         }
