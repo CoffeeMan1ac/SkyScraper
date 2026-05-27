@@ -116,12 +116,24 @@ public class FlightResultsController {
         currentPage = 0;
         updateVisibleFlights();
     }
-    
-    // Scene switching
+
+    /** Where the Back button returns to. When unset, Back falls back to the
+     *  main scene. ControllerGraphs sets this so bar-click results return to
+     *  the same graph (with chart + state intact) rather than to main. */
+    private Parent backTarget;
+
+    public void setBackTarget(Parent backTarget) {
+        this.backTarget = backTarget;
+    }
+
     @FXML
     private void switchToMainFromResults(ActionEvent event) throws IOException {
+        if (backTarget != null) {
+            Main.swapCenter((Node) event.getSource(), backTarget);
+            return;
+        }
         Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
         Main.swapCenter((Node) event.getSource(), newRoot);
     }
-    
+
 }

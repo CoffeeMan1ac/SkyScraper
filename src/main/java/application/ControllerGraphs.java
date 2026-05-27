@@ -182,10 +182,15 @@ public class ControllerGraphs {
                 .filter(f -> originCity.equals(f.originCity) && destCity.equals(f.destCity))
                 .collect(Collectors.toList());
         try {
+            // Capture the current graph node so Back returns the user to the
+            // same chart instance — preserves the rendered bars without
+            // re-running the heavy query.
+            Parent currentGraph = Main.getShellCenter(barChart);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightResults.fxml"));
             Parent root = loader.load();
             FlightResultsController controller = loader.getController();
             controller.setFlights(FXCollections.observableArrayList(matches));
+            if (currentGraph != null) controller.setBackTarget(currentGraph);
             Main.swapCenter(barChart, root);
         } catch (IOException ex) {
             ex.printStackTrace();
