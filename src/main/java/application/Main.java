@@ -55,8 +55,12 @@ public class Main extends Application {
                 }
                 e.consume();
             });
+            // Show on any drag-enter; setOnDragOver below filters to files for the
+            // actual drop. Calling dragboard.hasFiles() here triggers a synchronous
+            // GTK mime-type query that re-enters JavaFX's DnDGesture state machine
+            // and crashes it with IndexOutOfBoundsException on Linux.
             scene.setOnDragEntered(e -> {
-                if (e.getDragboard().hasFiles()) dragOverlay.setVisible(true);
+                dragOverlay.setVisible(true);
                 e.consume();
             });
             scene.setOnDragExited(e -> {
