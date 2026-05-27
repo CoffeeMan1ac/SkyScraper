@@ -66,10 +66,12 @@ public class FlightResultsController {
     private void handleBack() {
         try {
             if (backTarget != null) {
+                System.out.println("[Esc] results: returning to cached back target");
                 Main.swapCenter(flightsTable, backTarget);
                 if (previousEsc != null) Main.setEscHandler(previousEsc);
                 return;
             }
+            System.out.println("[Esc] results: reloading main");
             Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
             Main.swapCenter(flightsTable, newRoot);
         } catch (IOException ex) {
@@ -92,6 +94,7 @@ public class FlightResultsController {
             FlightDetailsController dc = loader.getController();
             dc.setFlight(f);
             Runnable closeBack = () -> {
+                System.out.println("[Esc] details: closing, restoring results");
                 Main.swapCenter(detailsRoot, currentResults);
                 Main.setEscHandler(previousEsc);
             };

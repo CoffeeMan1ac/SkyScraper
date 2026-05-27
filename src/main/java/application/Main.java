@@ -67,9 +67,13 @@ public class Main extends Application {
             // autocomplete Popup) aren't affected — their key events never
             // reach this main-scene filter.
             scene.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-                if (e.getCode() == KeyCode.ESCAPE && currentEscHandler != null) {
-                    currentEscHandler.run();
-                    e.consume();
+                if (e.getCode() == KeyCode.ESCAPE) {
+                    System.out.println("[Esc] key pressed (handler="
+                            + (currentEscHandler != null ? "set" : "null") + ")");
+                    if (currentEscHandler != null) {
+                        currentEscHandler.run();
+                        e.consume();
+                    }
                 }
             });
 

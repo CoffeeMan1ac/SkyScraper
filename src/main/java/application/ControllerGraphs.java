@@ -55,11 +55,13 @@ public class ControllerGraphs {
 
     private void goBack(Node sourceForSwap) {
         if (backTarget != null) {
+            System.out.println("[Esc] graph: returning to cached main");
             Main.swapCenter(sourceForSwap, backTarget);
             if (previousEsc != null) Main.setEscHandler(previousEsc);
             return;
         }
         try {
+            System.out.println("[Esc] graph: reloading main");
             Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
             Main.swapCenter(sourceForSwap, newRoot);
         } catch (IOException ex) {

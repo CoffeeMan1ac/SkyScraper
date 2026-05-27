@@ -285,7 +285,12 @@ public class Controller {
         // Esc on the main scene closes the flight-details panel if it's open;
         // otherwise no-op (Esc on top-level shouldn't quit or surprise).
         Main.setEscHandler(() -> {
-            if (flightDetails != null && flightDetails.isVisible()) hideFlightDetails();
+            if (flightDetails != null && flightDetails.isVisible()) {
+                System.out.println("[Esc] main: closing flight details");
+                hideFlightDetails();
+            } else {
+                System.out.println("[Esc] main: no-op (nothing to close)");
+            }
         });
     }
 
