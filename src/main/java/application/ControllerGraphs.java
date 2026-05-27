@@ -30,6 +30,20 @@ public class ControllerGraphs {
      *  to the table of flights for the origin→destination pair. */
     private String originCity;
 
+    @FXML
+    public void initialize() {
+        Main.setEscHandler(this::escapeToMain);
+    }
+
+    private void escapeToMain() {
+        try {
+            Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
+            Main.swapCenter(barChart, newRoot);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     // Load and display destination counts per user selected origin city
     public void displayInput(String cityName) {
         this.originCity = cityName;

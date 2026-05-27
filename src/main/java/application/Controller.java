@@ -281,6 +281,12 @@ public class Controller {
         }
 
         populateRecentDatasetsMenu();
+
+        // Esc on the main scene closes the flight-details panel if it's open;
+        // otherwise no-op (Esc on top-level shouldn't quit or surprise).
+        Main.setEscHandler(() -> {
+            if (flightDetails != null && flightDetails.isVisible()) hideFlightDetails();
+        });
     }
 
     /** Builds the SplitMenuButton dropdown: recent datasets (excluding the current one), then a "Sample" reset entry. */

@@ -8,7 +8,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -18,6 +20,15 @@ import javafx.stage.FileChooser;
 import java.io.File;
 
 public class Main extends Application {
+
+    /** Current Esc handler, swapped by each scene's controller in its
+     *  initialize. A scene-level event handler dispatches Esc to whatever's
+     *  registered here. */
+    private static Runnable currentEscHandler;
+
+    public static void setEscHandler(Runnable handler) { currentEscHandler = handler; }
+    public static Runnable getEscHandler() { return currentEscHandler; }
+
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -48,6 +59,15 @@ public class Main extends Application {
             scene.getAccelerators().put(
                     KeyCombination.keyCombination("Shortcut+O"),
                     () -> onOpenDataset(primaryStage));
+
+            // Esc dispatch — bubble-phase handler so widgets that consume Esc
+            // internally (DatePicker popup, etc.) take priority.
+            scene.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+                if (e.getCode() == KeyCode.ESCAPE && currentEscHandler != null) {
+                    currentEscHandler.run();
+                    e.consume();
+                }
+            });
 
             scene.setOnDragOver(e -> {
                 if (e.getDragboard().hasFiles()) {

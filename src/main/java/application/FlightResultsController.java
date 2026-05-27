@@ -52,20 +52,45 @@ public class FlightResultsController {
             });
             return row;
         });
+
+        Main.setEscHandler(this::handleBack);
+    }
+
+    /** Same action as the Back button — used by both the FXML handler and the
+     *  scene-wide Esc binding. */
+    private void handleBack() {
+        try {
+            if (backTarget != null) {
+                Main.swapCenter(flightsTable, backTarget);
+                return;
+            }
+            Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
+            Main.swapCenter(flightsTable, newRoot);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /** Swaps the BorderPane centre to a freshly-loaded FlightDetails panel and
      *  installs an onClose that restores the *same* results node we left —
-     *  so pagination, scroll, and selection survive the round-trip. */
+     *  so pagination, scroll, and selection survive the round-trip. Esc is
+     *  re-pointed at the same close action while details is showing, then
+     *  restored to the results' back handler on close. */
     private void showFlightDetails(Flight f) {
         Parent currentResults = Main.getShellCenter(flightsTable);
         if (currentResults == null) return;
+        Runnable previousEsc = Main.getEscHandler();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FlightDetails.fxml"));
             Parent detailsRoot = loader.load();
             FlightDetailsController dc = loader.getController();
             dc.setFlight(f);
-            dc.setOnClose(() -> Main.swapCenter(detailsRoot, currentResults));
+            Runnable closeBack = () -> {
+                Main.swapCenter(detailsRoot, currentResults);
+                Main.setEscHandler(previousEsc);
+            };
+            dc.setOnClose(closeBack);
+            Main.setEscHandler(closeBack);
             Main.swapCenter(flightsTable, detailsRoot);
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -127,13 +152,8 @@ public class FlightResultsController {
     }
 
     @FXML
-    private void switchToMainFromResults(ActionEvent event) throws IOException {
-        if (backTarget != null) {
-            Main.swapCenter((Node) event.getSource(), backTarget);
-            return;
-        }
-        Parent newRoot = FXMLLoader.load(getClass().getResource("/Main.fxml"));
-        Main.swapCenter((Node) event.getSource(), newRoot);
+    private void switchToMainFromResults(ActionEvent event) {
+        handleBack();
     }
 
 }
