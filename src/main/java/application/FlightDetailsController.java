@@ -102,8 +102,8 @@ public class FlightDetailsController {
         // Badges — boolean flags are stored as "0"/"1" (sample dataset) or
         // "0.00"/"1.00" (some older BTS exports). Treat anything starting
         // with "1" as true.
-        boolean cancelled = isTrueFlag(flight.cancelled);
-        boolean diverted = isTrueFlag(flight.diverted);
+        boolean cancelled = flight.isCancelled();
+        boolean diverted = flight.isDiverted();
         setBadgeVisible(cancelledBadge, cancelled);
         setBadgeVisible(divertedBadge, diverted);
         boolean anyBadge = cancelled || diverted;
@@ -227,12 +227,6 @@ public class FlightDetailsController {
 
     private static String blankIfNull(String s) { return s == null ? "" : s; }
     private static String orDash(String s) { return (s == null || s.isEmpty()) ? "—" : s; }
-
-    private static boolean isTrueFlag(String raw) {
-        if (raw == null) return false;
-        String t = raw.trim();
-        return !t.isEmpty() && t.charAt(0) == '1';
-    }
 
     private static void setBadgeVisible(Label badge, boolean show) {
         badge.setVisible(show);

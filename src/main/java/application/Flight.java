@@ -53,4 +53,18 @@ public class Flight {
     public String getCrsArrTime() { return crsArrTime; }
     public String getCancelled() { return cancelled; }
     public String getDiverted() { return diverted; }
+
+    public boolean isCancelled() { return flagIsTrue(cancelled); }
+    public boolean isDiverted() { return flagIsTrue(diverted); }
+
+    /** BTS-style boolean flags arrive as "1"/"0" in some exports and
+     *  "1.00"/"0.00" in others. Parse as a number so both work. */
+    private static boolean flagIsTrue(String s) {
+        if (s == null || s.isEmpty()) return false;
+        try {
+            return Double.parseDouble(s.trim()) >= 0.5;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

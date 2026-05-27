@@ -633,8 +633,8 @@ public class Controller {
                     boolean matchOrigin = isAny(selectedOrigin) || f.originCity.equals(selectedOrigin);
                     boolean matchDest = isAny(selectedDest) || f.destCity.equals(selectedDest);
 
-                    boolean matchCancelled = !showCancelled || f.cancelled.equals("1.00");
-                    boolean matchDiverted = !showDiverted || f.diverted.equals("1.00");
+                    boolean matchCancelled = !showCancelled || f.isCancelled();
+                    boolean matchDiverted = !showDiverted || f.isDiverted();
 
                     return matchDep && matchArr && matchCarrier && matchOrigin && matchDest && matchCancelled && matchDiverted;
                 })
