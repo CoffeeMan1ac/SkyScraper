@@ -177,6 +177,14 @@ public class Controller {
         destinationCityComboBox.setItems(withAny("Any destination", uniqueDestCities));
         destinationCityComboBox.setValue("Any destination");
 
+        // Cascade: when any of carrier/origin/destination changes, restrict
+        // the other two to the values still reachable. Recursive entry
+        // is blocked by the updatingFilters guard.
+        javafx.beans.value.ChangeListener<String> cascade = (obs, oldV, newV) -> updateFilterOptions();
+        carrierComboBox.valueProperty().addListener(cascade);
+        originCityComboBox.valueProperty().addListener(cascade);
+        destinationCityComboBox.valueProperty().addListener(cascade);
+
         rangeSlider = buildTimeRangeSlider();
         rangeSlider2 = buildTimeRangeSlider();
 
@@ -798,11 +806,57 @@ public class Controller {
         Main.swapCenter(cityComboBox, newRoot);
     }
     
-    private static ObservableList<String> withAny(String anyLabel, Set<String> values) {
+    private static ObservableList<String> withAny(String anyLabel, java.util.Collection<String> values) {
         ObservableList<String> list = FXCollections.observableArrayList();
         list.add(anyLabel);
         list.addAll(values);
         return list;
+    }
+
+    private boolean updatingFilters = false;
+
+    /** Faceted cascade: re-derive the values available in each combo box from
+     *  the flights that still match the *other* selections. Preserves the
+     *  user's current pick when it's still valid; falls back to the "Any"
+     *  sentinel otherwise. */
+    private void updateFilterOptions() {
+        if (updatingFilters) return;
+        updatingFilters = true;
+        try {
+            String selCarrier = carrierComboBox.getValue();
+            String selOrigin = originCityComboBox.getValue();
+            String selDest = destinationCityComboBox.getValue();
+            boolean anyC = isAny(selCarrier);
+            boolean anyO = isAny(selOrigin);
+            boolean anyD = isAny(selDest);
+
+            java.util.TreeSet<String> validCarriers = new java.util.TreeSet<>();
+            java.util.TreeSet<String> validOrigins = new java.util.TreeSet<>();
+            java.util.TreeSet<String> validDests = new java.util.TreeSet<>();
+            for (Flight f : MemoryLoader.getAllFlights()) {
+                boolean cMatch = anyC || f.mktCarrier.equals(selCarrier);
+                boolean oMatch = anyO || f.originCity.equals(selOrigin);
+                boolean dMatch = anyD || f.destCity.equals(selDest);
+                if (oMatch && dMatch) validCarriers.add(f.mktCarrier);
+                if (cMatch && dMatch) validOrigins.add(f.originCity);
+                if (cMatch && oMatch) validDests.add(f.destCity);
+            }
+
+            replaceItemsIfChanged(carrierComboBox, "Any carrier", validCarriers, selCarrier);
+            replaceItemsIfChanged(originCityComboBox, "Any origin", validOrigins, selOrigin);
+            replaceItemsIfChanged(destinationCityComboBox, "Any destination", validDests, selDest);
+        } finally {
+            updatingFilters = false;
+        }
+    }
+
+    private static void replaceItemsIfChanged(ComboBox<String> cb, String anyLabel,
+                                              java.util.Set<String> valid, String currentValue) {
+        java.util.Set<String> currentItems = new java.util.HashSet<>(cb.getItems());
+        currentItems.remove(anyLabel);
+        if (currentItems.equals(valid)) return;
+        cb.setItems(withAny(anyLabel, valid));
+        cb.setValue(valid.contains(currentValue) ? currentValue : anyLabel);
     }
 
     private static boolean isAny(String value) {
