@@ -33,7 +33,7 @@ public class MemoryLoader {
      * decide whether to hide redundant fields.
      */
     public static final class DatasetStats {
-        static final DatasetStats EMPTY = new DatasetStats(false, null, null, null, false);
+        static final DatasetStats EMPTY = new DatasetStats(false, null, null, null);
 
         /** True when the time-of-day portion of FL_DATE is identical across every row (so it carries no information). */
         public final boolean dateHasNoTimeOfDay;
@@ -43,18 +43,13 @@ public class MemoryLoader {
         public final java.time.LocalDate minDate;
         /** Latest FL_DATE seen, or null if none parsed. */
         public final java.time.LocalDate maxDate;
-        /** True when {@code CRS_DEP_TIME} has at least two distinct values across the dataset.
-         *  When false, the time-of-day filter has nothing to filter on and is disabled. */
-        public final boolean hasTimeOfDay;
 
         DatasetStats(boolean dateHasNoTimeOfDay, String constantDateTimeTail,
-                     java.time.LocalDate minDate, java.time.LocalDate maxDate,
-                     boolean hasTimeOfDay) {
+                     java.time.LocalDate minDate, java.time.LocalDate maxDate) {
             this.dateHasNoTimeOfDay = dateHasNoTimeOfDay;
             this.constantDateTimeTail = constantDateTimeTail;
             this.minDate = minDate;
             this.maxDate = maxDate;
-            this.hasTimeOfDay = hasTimeOfDay;
         }
 
         static DatasetStats compute(List<Flight> flights) {
@@ -62,8 +57,6 @@ public class MemoryLoader {
             String firstTail = extractDateTail(flights.get(0).flDate);
             boolean tailConstant = true;
             java.time.LocalDate min = null, max = null;
-            String firstCrsTime = null;
-            boolean hasTimeOfDay = false;
             for (Flight f : flights) {
                 String tail = extractDateTail(f.flDate);
                 if (tailConstant && !Objects.equals(firstTail, tail)) tailConstant = false;
@@ -73,16 +66,8 @@ public class MemoryLoader {
                     if (min == null || d.isBefore(min)) min = d;
                     if (max == null || d.isAfter(max)) max = d;
                 }
-
-                if (!hasTimeOfDay) {
-                    String t = f.crsDepTime;
-                    if (t != null) {
-                        if (firstCrsTime == null) firstCrsTime = t;
-                        else if (!t.equals(firstCrsTime)) hasTimeOfDay = true;
-                    }
-                }
             }
-            return new DatasetStats(tailConstant, tailConstant ? firstTail : null, min, max, hasTimeOfDay);
+            return new DatasetStats(tailConstant, tailConstant ? firstTail : null, min, max);
         }
 
         private static String extractDateTail(String flDate) {
