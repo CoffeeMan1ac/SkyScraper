@@ -205,6 +205,16 @@ public class Controller {
         rangeSlider2.lowValueChangingProperty().addListener(onDragEnd);
         rangeSlider2.highValueChangingProperty().addListener(onDragEnd);
 
+        // Disable the Time button when the dataset has no time-of-day variation.
+        // The hover tooltip explains why; JavaFX 9+ still surfaces tooltips on
+        // disabled controls so no workaround is needed.
+        if (!MemoryLoader.getStats().hasTimeOfDay) {
+            timeButton.setDisable(true);
+            Tooltip noTimeTip = new Tooltip("Time of day not present in this dataset");
+            noTimeTip.setShowDelay(Duration.millis(120));
+            Tooltip.install(timeButton, noTimeTip);
+        }
+
         // Date filter — popover with from/to DatePickers. Prompt text seeded
         // from the dataset's min/max so the user sees the available span;
         // dayCellFactory disables out-of-range cells (standard JavaFX idiom).
