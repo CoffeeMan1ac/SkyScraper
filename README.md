@@ -19,6 +19,6 @@ The SkyScraper project is hosted on [GitHub](https://github.com/CoffeeMan1ac/Sky
 - User Interaction: Interact with the data by clicking on flight records to see detailed information.
 
 ### LICENSING
-SkyScraper is licensed under EMIT licence which can be viewed in [LICENSE](LICENSE)
+SkyScraper is licensed under the MIT License which can be viewed in [LICENSE](LICENSE)
 
-[![EMIT License](https://img.shields.io/badge/License-EMIT-orange?style=flat-square)](LICENSE)
+[![MIT License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)](LICENSE)
