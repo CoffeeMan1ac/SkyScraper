@@ -623,7 +623,10 @@ public class Controller {
 
     private void updateFlightSuggestions(String text) {
         String input = text == null ? "" : text.toUpperCase();
-        if (!input.matches("^[A-Z]{2}\\d+$")) {
+        // Carrier codes are 2 chars but not necessarily two letters — F9, B6,
+        // G4, 9E etc. all appear in BTS data. Accept any alphanumeric pair
+        // followed by the flight number digits.
+        if (!input.matches("^[A-Z0-9]{2}\\d+$")) {
             flightAutocompletePopup.hide();
             return;
         }
