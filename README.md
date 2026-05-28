@@ -13,17 +13,17 @@ A desktop app for exploring U.S. commercial flight datasets — load a CSV from 
 ![Drilling from a graph bar into a single flight](docs/03-drill-in.gif)
 
 ## Features
-- **Albers-USA map** with state outlines and airport dots sized by activity. Heatmap mode colours states by volume.
-- **Faceted filtering** — carrier/origin/destination cascade together; date range constrained to the dataset's span; time-of-day window; cancelled/diverted toggles.
-- **Per-flight details** showing scheduled vs actual times with signed-minute delay deltas (green for early/on-time, red for late), badges for cancelled/diverted.
-- **Drill-ins**: click a dot → destination graph for that city; click a bar → table of flights for that origin→destination pair.
+- **Albers-USA map** with state outlines and airport dots. Heatmap colours states by volume of flights.
+- **Search** — carrier/origin/destination cascade together; date range; time; cancelled/diverted toggles.
+- **Per-flight details** showing scheduled vs actual times with signed-minute delay deltas, badges for cancelled/diverted.
+- **Drill-ins**: click a dot → destination graph for that airport; click a bar → table of flights for that origin→destination pair.
 - **Drag-and-drop** any flights CSV onto the window; recents menu remembers the last 5.
-- **Keyboard-friendly navigation** — Esc returns to the previous scene throughout; scenes cache for instant returns.
+- **Keyboard-friendly navigation** — Esc returns to the previous scene.
 
 ## Downloads
-Portable bundles per platform on the [Releases page](https://github.com/CoffeeMan1ac/SkyScraper/releases) — Linux AppImage, macOS `.app`, Windows folder. No installer.
+Portable bundles per platform on the [Releases page](https://github.com/CoffeeMan1ac/SkyScraper/releases) — Linux AppImage, macOS `.app`, Windows folder.
 
-Or build from source (Java 24 + JavaFX 24): `./mvnw javafx:run`. A bundled `flights_sample.csv` (~2,000 rows, January 2022) loads on first launch.
+Or build from source (Java 24 + JavaFX 24): `./mvnw javafx:run`. A bundled `flights_sample.csv` (~2,000 rows, January 2022) loads launch.
 
 ## Data
 
@@ -31,16 +31,14 @@ The app reads **BTS Marketing Carrier On-Time Performance** CSVs
 (US Department of Transportation; one row per US commercial flight,
 monthly, since January 2018).
 
-A 2,000-flight sample (`flights_sample.csv`) ships with the repo, so
-the immediate run path needs no download.
+A 2,000-flight sample (`flights_sample.csv`) ships with the repo.
 
 ### Loading more data from BTS
 
 1. Open <https://www.transtats.bts.gov> → Data Finder → Aviation →
    Airline On-Time Performance Data → **Marketing Carrier On-Time
    Performance (Beginning January 2018)**.
-2. Tick exactly these 18 fields — no more, no less. The parser is
-   positional, so extras shift the column order and break loading.
+2. Tick exactly these 18 fields
 
    | Section | Field |
    |---|---|
@@ -66,11 +64,11 @@ the immediate run path needs no download.
 3. Pick a year/month under the geography/year/period filters,
    click **Download**.
 4. Open the resulting CSV in the app via **Open dataset** or drag
-   it onto the window.
+   and drop it into the window
 
 ## Tech stack
 - Java 24, JavaFX 24
-- ControlsFX (RangeSlider, PopOver)
+- ControlsFX
 - OpenCSV
 - Maven build · `jpackage` app-image distribution
 - TopoJSON state outlines from [us-atlas](https://github.com/topojson/us-atlas)
